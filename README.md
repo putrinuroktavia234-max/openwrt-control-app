@@ -6,22 +6,25 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
 
 ## ✨ Fitur
 
-- 🌌 **Layar pembuka login native** — kartu login gelap custom milik aplikasi, bukan halaman web polos; kredensial disimpan di HP dan form login LuCI diisi & dikirim otomatis
-- 📱 **Fullscreen tanpa bar** — tidak ada status bar/browser bar; satu-satunya kontrol adalah tombol mengambang cyan (☰) di pojok
-- 🧭 **Semua menu LuCI utuh** — WebView penuh dengan JavaScript, cookies, zoom, dan tombol back HP = kembali halaman
-- 🔐 **Sesi login tersimpan** — tidak perlu ketik password root tiap buka aplikasi
-- 🔄 **Menu cepat (FAB)** — Muat Ulang, Beranda, Halaman Login, Ganti Alamat Router, Logout
+- 🐺 **Login "Husky Guard"** — layar pembuka custom penuh animasi: husky kartun menutup mata dengan paw saat kamu mengetik sandi, mata melirik mengikuti sentuhan, paw mengintip saat ikon 👁 ditekan, dan senang saat login berhasil; kredensial disimpan lalu form login LuCI diisi & dikirim otomatis
+- 🚪 **Tombol Masuk dengan pintu** — animasi pintu terbuka + stickman berjalan masuk saat submit (ala video referensi)
+- 📱 **Fullscreen tanpa bar** — tidak ada status bar, tidak ada header/loading bar ala browser; kontrol hanya FAB ☰ cyan di pojok
+- 🧊 Kaca *glassmorphism* + glow teal-biru, latar gelap, tanpa kedip putih
+- 🧭 **Semua menu LuCI utuh** — WebView penuh: JavaScript, cookies, zoom, back HP = kembali halaman
+- 🔄 **Menu cepat (FAB)** — Muat Ulang / Beranda / Halaman Login / Ganti Alamat Router / Logout
 - 🌐 **Ganti alamat router dari dalam aplikasi** — tidak terpaku di `192.168.1.1`
-- 🧹 **Logout / bersihkan sesi** kapan saja
-- Tema gelap navy-cyan + aksen gradasi
 
 ## 📸 Pratinjau Tampilan
 
-> Catatan: gambar di bawah adalah **mockup desain 1:1** (render layout & warna persis seperti aplikasi jadi), bukan tangkapan layar dari emulator.
+| Idle — mata terbuka | 🙈 Mengetik sandi — paw menutup mata | ✅ Login berhasil — husky senang |
+|---|---|---|
+| ![idle](docs/screenshots/02-login-native.png) | ![cover](docs/screenshots/03-husky-jaga-sandi.png) | ![happy](docs/screenshots/04-login-berhasil.png) |
 
-| Login Native (splash) | Dashboard — tanpa bar, FAB menu |
-|---|---|
-| ![Login](docs/screenshots/02-login-native.png) | ![Dashboard](docs/screenshots/01-dashboard-status.png) |
+Setelah login, halaman LuCI tampil **fullscreen tanpa bar apa pun** — hanya tombol ☰ mengambang:
+
+![dashboard](docs/screenshots/01-dashboard-status.png)
+
+> Gambar adalah render 1:1 dari HTML/aset yang benar-benar dipakai aplikasi (bukan emulator).
 
 ## 📥 Cara Install
 

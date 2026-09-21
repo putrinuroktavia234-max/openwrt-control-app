@@ -2,15 +2,14 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0a1622">
+    android:background="#0b0f16">
 
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Tombol mengambang: menu cepat. Tidak ada bar atas sama sekali,
-         jadi tidak ada yang mirip browser. -->
+    <!-- Satu-satunya kontrol aplikasi: FAB menu. Tidak ada bar ala browser. -->
     <ImageButton
         android:id="@+id/fab"
         android:layout_width="52dp"
@@ -22,111 +21,7 @@
         android:padding="13dp"
         android:background="@drawable/bg_fab"
         android:elevation="8dp"
+        android:visibility="gone"
         android:contentDescription="Menu" />
-
-    <!-- Splash login native (tampil sampai halaman pertama selesai dimuat) -->
-    <LinearLayout
-        android:id="@+id/splash"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:background="@drawable/bg_login"
-        android:padding="28dp">
-
-        <ImageView
-            android:layout_width="86dp"
-            android:layout_height="86dp"
-            android:src="@drawable/ic_launcher"
-            android:contentDescription="@string/app_name" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="@string/app_name"
-            android:textColor="#eaf3fc"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.02" />
-
-        <TextView
-            android:id="@+id/splash_host"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#5f7d99"
-            android:textSize="13sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="34dp"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="22dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Masuk ke Router"
-                android:textColor="#dceaf7"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_user"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_input"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:hint="Nama pengguna"
-                android:inputType="textNoSuggestions"
-                android:textColor="#eaf3fc"
-                android:textColorHint="#547089"
-                android:textSize="14sp"
-                android:autofillHints="username" />
-
-            <EditText
-                android:id="@+id/et_pass"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_input"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
-                android:hint="Kata sandi"
-                android:inputType="textPassword"
-                android:textColor="#eaf3fc"
-                android:textColorHint="#547089"
-                android:textSize="14sp"
-                android:autofillHints="password" />
-
-            <Button
-                android:id="@+id/btn_login"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_btn"
-                android:text="Masuk"
-                android:textAllCaps="false"
-                android:textColor="#06222b"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btn_skip"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center"
-                android:padding="6dp"
-                android:text="atau buka halaman router langsung →"
-                android:textColor="#5f9dc4"
-                android:textSize="12sp" />
-        </LinearLayout>
-    </LinearLayout>
 
 </FrameLayout>
