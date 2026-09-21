@@ -1,76 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#0f1a2b">
-
-    <!-- Header kustom, bukan address bar browser -->
-    <LinearLayout
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="#16283f"
-        android:paddingStart="12dp"
-        android:paddingEnd="4dp">
-
-        <View
-            android:id="@+id/status_dot"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:background="@drawable/dot_offline" />
-
-        <TextView
-            android:id="@+id/title_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:text="@string/app_name"
-            android:textColor="#e8f0fa"
-            android:textSize="15sp"
-            android:singleLine="true"
-            android:ellipsize="end" />
-
-        <ImageButton
-            android:id="@+id/btn_reload"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_refresh"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Muat ulang" />
-
-        <ImageButton
-            android:id="@+id/btn_home"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_home"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Beranda" />
-
-        <ImageButton
-            android:id="@+id/btn_menu"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_menu"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Menu" />
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:progressTint="#00b4d8"
-        android:visibility="gone" />
+    android:background="#0a1622">
 
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent" />
 
-</LinearLayout>
+    <!-- Tombol mengambang: menu cepat. Tidak ada bar atas sama sekali,
+         jadi tidak ada yang mirip browser. -->
+    <ImageButton
+        android:id="@+id/fab"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="18dp"
+        android:src="@drawable/ic_menu"
+        android:scaleType="centerInside"
+        android:padding="13dp"
+        android:background="@drawable/bg_fab"
+        android:elevation="8dp"
+        android:contentDescription="Menu" />
+
+    <!-- Splash login native (tampil sampai halaman pertama selesai dimuat) -->
+    <LinearLayout
+        android:id="@+id/splash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/bg_login"
+        android:padding="28dp">
+
+        <ImageView
+            android:layout_width="86dp"
+            android:layout_height="86dp"
+            android:src="@drawable/ic_launcher"
+            android:contentDescription="@string/app_name" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/app_name"
+            android:textColor="#eaf3fc"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.02" />
+
+        <TextView
+            android:id="@+id/splash_host"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#5f7d99"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="22dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Masuk ke Router"
+                android:textColor="#dceaf7"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_user"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_input"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:hint="Nama pengguna"
+                android:inputType="textNoSuggestions"
+                android:textColor="#eaf3fc"
+                android:textColorHint="#547089"
+                android:textSize="14sp"
+                android:autofillHints="username" />
+
+            <EditText
+                android:id="@+id/et_pass"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_input"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:hint="Kata sandi"
+                android:inputType="textPassword"
+                android:textColor="#eaf3fc"
+                android:textColorHint="#547089"
+                android:textSize="14sp"
+                android:autofillHints="password" />
+
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_btn"
+                android:text="Masuk"
+                android:textAllCaps="false"
+                android:textColor="#06222b"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btn_skip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center"
+                android:padding="6dp"
+                android:text="atau buka halaman router langsung →"
+                android:textColor="#5f9dc4"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

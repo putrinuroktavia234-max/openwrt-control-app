@@ -6,22 +6,22 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
 
 ## ✨ Fitur
 
-- 🟢 **Indikator status** — titik hijau (router terhubung) / merah (terputus) di header
+- 🌌 **Layar pembuka login native** — kartu login gelap custom milik aplikasi, bukan halaman web polos; kredensial disimpan di HP dan form login LuCI diisi & dikirim otomatis
+- 📱 **Fullscreen tanpa bar** — tidak ada status bar/browser bar; satu-satunya kontrol adalah tombol mengambang cyan (☰) di pojok
 - 🧭 **Semua menu LuCI utuh** — WebView penuh dengan JavaScript, cookies, zoom, dan tombol back HP = kembali halaman
 - 🔐 **Sesi login tersimpan** — tidak perlu ketik password root tiap buka aplikasi
-- 🔄 **Tombol cepat** — Muat Ulang, Beranda, Menu
+- 🔄 **Menu cepat (FAB)** — Muat Ulang, Beranda, Halaman Login, Ganti Alamat Router, Logout
 - 🌐 **Ganti alamat router dari dalam aplikasi** — tidak terpaku di `192.168.1.1`
 - 🧹 **Logout / bersihkan sesi** kapan saja
-- 📊 Progress bar saat halaman memuat
-- Tema gelap navy-cyan yang konsisten
+- Tema gelap navy-cyan + aksen gradasi
 
 ## 📸 Pratinjau Tampilan
 
 > Catatan: gambar di bawah adalah **mockup desain 1:1** (render layout & warna persis seperti aplikasi jadi), bukan tangkapan layar dari emulator.
 
-| Dashboard Status | Halaman Login Router | Menu Ganti IP |
-|---|---|---|
-| ![Dashboard](docs/screenshots/01-dashboard-status.png) | ![Login](docs/screenshots/02-login-router.png) | ![Ganti IP](docs/screenshots/03-menu-ganti-ip.png) |
+| Login Native (splash) | Dashboard — tanpa bar, FAB menu |
+|---|---|
+| ![Login](docs/screenshots/02-login-native.png) | ![Dashboard](docs/screenshots/01-dashboard-status.png) |
 
 ## 📥 Cara Install
 
