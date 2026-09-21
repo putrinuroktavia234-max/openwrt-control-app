@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
         s.setBuiltInZoomControls(true);
         s.setDisplayZoomControls(false);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        webView.setBackgroundColor(0xFF0B0F16);
+        webView.setBackgroundColor(0xFF0C0D10);
 
         CookieManager.getInstance().setAcceptCookie(true);
 
@@ -109,10 +109,16 @@ public class MainActivity extends Activity {
                 JSONObject j = new JSONObject();
                 j.put("u", sp.getString(KEY_USER, "root"));
                 j.put("p", sp.getString(KEY_PASS, ""));
+                j.put("h", routerHost);
                 return j.toString();
             } catch (Exception e) {
                 return "{\"u\":\"root\",\"p\":\"\"}";
             }
+        }
+
+        @JavascriptInterface
+        public void changeHost() {
+            runOnUiThread(MainActivity.this::showHostDialog);
         }
 
         @JavascriptInterface

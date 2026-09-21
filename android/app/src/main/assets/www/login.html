@@ -1,130 +1,157 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<html lang="id"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <title>OpenWrt Control</title>
 <style>
+@font-face{font-family:'SG';src:url('fonts/sg-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'SG';src:url('fonts/sg-700.woff2') format('woff2');font-weight:700;font-display:swap}
+
+:root{
+  --ink:#0c0d10;
+  --device:#17181d;
+  --raise:#1e2026;
+  --hair:rgba(255,255,255,.075);
+  --text-1:#f2f1ee;
+  --text-2:#9b9d9f;
+  --text-3:#5d6065;
+  --amber:#e9b44c;
+  --amber-deep:#d49f33;
+  --led:#8fc98a;
+  --r-ctl:10px;
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:system-ui,-apple-system,Roboto,sans-serif;background:#0b0f16;display:flex;align-items:center;justify-content:center;overflow:hidden}
-body::before{content:"";position:fixed;inset:0;background:
- radial-gradient(65% 45% at 75% 28%,rgba(0,180,216,.22),transparent 60%),
- radial-gradient(55% 45% at 18% 78%,rgba(122,162,247,.20),transparent 60%),
- radial-gradient(40% 30% at 50% 50%,rgba(80,120,255,.10),transparent 70%);pointer-events:none}
-.wrap{width:340px;max-width:92vw;display:flex;flex-direction:column;align-items:center;position:relative}
-/* ---- Husky ---- */
-.husky{width:170px;height:150px;margin-bottom:-46px;position:relative;z-index:3;filter:drop-shadow(0 8px 18px rgba(0,0,0,.5))}
-#paws{transform:translateY(110px);transition:transform .32s cubic-bezier(.34,1.56,.64,1)}
-.husky.cover #paws{transform:translateY(0)}
-.husky.peek #paws{transform:translateY(-14px) }
-.husky.peek #pawL{transform:translateX(-9px) rotate(-8deg)}
-.husky.peek #pawR{transform:translateX(9px) rotate(8deg)}
-#pawL,#pawR{transition:transform .3s}
-#eyeHappy{opacity:0;transition:opacity .25s}
-.husky.happy #eyeOpen{opacity:0}
-.husky.happy #eyeHappy{opacity:1}
-.husky.happy #paws{transform:translateY(110px)}
-#pupL,#pupR{transition:transform .18s ease-out}
-/* ---- Kartu ---- */
-.card{width:100%;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);border-radius:22px;padding:64px 26px 26px;box-shadow:0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.10)}
-h1{font-size:22px;font-weight:700;text-align:center;color:#7aa2f7;letter-spacing:.3px}
-.sub{text-align:center;color:#8b95a7;font-size:12.5px;margin:6px 0 22px}
-.field{position:relative;margin-bottom:13px}
-.field input{width:100%;background:rgba(10,14,20,.6);border:1px solid rgba(255,255,255,.1);color:#eef2f9;font-size:14.5px;padding:21px 44px 8px 14px;border-radius:12px;outline:none;transition:border-color .2s, box-shadow .2s}
-.field input:focus{border-color:#7aa2f7;box-shadow:0 0 0 3px rgba(122,162,247,.18)}
-.field label{position:absolute;left:14px;top:15px;color:#79839a;font-size:14px;pointer-events:none;transition:all .18s}
-.field input:focus+label,.field input:not(:placeholder-shown)+label{top:6px;font-size:10.5px;color:#7aa2f7}
-#eyeBtn{position:absolute;right:8px;top:9px;width:30px;height:30px;border:none;background:none;color:#79839a;font-size:17px;cursor:pointer}
-#eyeBtn.on{color:#7aa2f7}
-.err{display:none;background:rgba(242,160,172,.12);border:1px solid rgba(242,160,172,.35);color:#f2a0ac;font-size:12px;padding:9px 12px;border-radius:10px;margin-bottom:13px}
-.err.show{display:block}
-/* ---- Tombol + pintu ---- */
-.btn{position:relative;width:100%;border:none;border-radius:12px;padding:0;height:50px;background:linear-gradient(90deg,#4a7dff,#7aa2f7);color:#fff;font-size:15px;font-weight:700;overflow:hidden;cursor:pointer}
-.btn .door{position:absolute;right:12px;top:9px;width:26px;height:32px;perspective:120px}
-.door .frame{position:absolute;inset:0;border-radius:4px;background:#0b1220;border:1.5px solid rgba(255,255,255,.25)}
-.door .leaf{position:absolute;left:1px;top:1px;bottom:1px;width:22px;border-radius:3px;background:linear-gradient(180deg,#cfe0ff,#9db9ee);transform-origin:left center;transition:transform .45s ease;box-shadow:inset 0 0 0 1.5px rgba(11,18,32,.35)}
-.door .leaf::after{content:"";position:absolute;right:3px;top:13px;width:3px;height:3px;border-radius:50%;background:#0b1220}
-.door .man{position:absolute;bottom:2px;right:2px;width:9px;height:16px;opacity:0;transition:opacity .1s}
-.door .man i{position:absolute;left:2px;width:5px;height:5px;border-radius:50%;background:#fff;top:0}
-.door .man b{position:absolute;left:3.5px;top:5px;width:2px;height:11px;background:#fff}
-.btn.go .leaf{transform:rotateY(-72deg)}
-.btn.go .man{opacity:1;animation:walk .75s linear forwards}
-@keyframes walk{from{transform:translateX(0)}to{transform:translateX(30px);opacity:0}}
-.skip{display:block;text-align:center;margin-top:15px;color:#5f9dc4;font-size:12px;text-decoration:none}
-.foot{text-align:center;color:#525d73;font-size:11px;margin-top:14px}
+body{background:var(--ink);font-family:'SG',system-ui,sans-serif;color:var(--text-1);
+  display:flex;align-items:stretch;justify-content:center}
+.stage{width:100%;max-width:430px;display:flex;flex-direction:column;position:relative;
+  background:
+   radial-gradient(120% 55% at 50% -8%, rgba(233,180,76,.055), transparent 60%),
+   var(--ink)}
+
+.deck{flex:0 0 auto;padding:30px 26px 30px;position:relative}
+.toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.led{display:flex;align-items:center;gap:7px}
+.led i{width:7px;height:7px;border-radius:50%;background:var(--led);
+  box-shadow:0 0 0 0 rgba(143,201,138,.5);animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(143,201,138,.45)}
+  70%{box-shadow:0 0 0 9px rgba(143,201,138,0)}
+  100%{box-shadow:0 0 0 0 rgba(143,201,138,0)}}
+.led span{font-size:10.5px;font-weight:500;color:var(--text-3);letter-spacing:.04em}
+.mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(160deg,var(--raise),#14151a);
+  border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center}
+.mark svg{width:24px;height:24px;stroke:var(--amber);fill:none;stroke-width:1.7;stroke-linecap:round}
+.deck h1{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.08}
+.deck p{font-size:13.5px;font-weight:500;color:var(--text-2);margin-top:8px;max-width:26ch;line-height:1.45}
+.meta{display:flex;justify-content:space-between;margin-top:24px}
+.meta div{font-size:10.5px;font-weight:500;color:var(--text-3);letter-spacing:.07em;text-transform:uppercase}
+.meta b{display:block;font-size:13.5px;font-weight:700;color:var(--text-1);letter-spacing:0;margin-top:4px;
+  font-variant-numeric:tabular-nums}
+.meta div:last-child{text-align:right}
+
+.sheet{flex:0 0 auto;margin-top:auto;background:var(--device);border-radius:26px 26px 0 0;
+  border:1px solid var(--hair);border-bottom:none;
+  padding:34px 26px calc(28px + env(safe-area-inset-bottom));position:relative;
+  box-shadow:0 -14px 40px rgba(0,0,0,.5)}
+.grab{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:34px;height:4px;
+  border-radius:2px;background:rgba(255,255,255,.14)}
+.f{margin-bottom:26px}
+.f label{display:block;font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--text-3);
+  text-transform:uppercase;margin-bottom:10px}
+.f .in{display:flex;align-items:center;background:var(--raise);border:1px solid transparent;
+  border-radius:var(--r-ctl);height:54px;transition:border-color .18s,background .18s}
+.f .in:focus-within{border-color:rgba(233,180,76,.55);background:#22242b}
+.f input{flex:1;background:none;border:none;outline:none;color:var(--text-1);
+  font:700 15.5px/1 'SG',sans-serif;letter-spacing:.01em;padding:0 16px;min-width:0;
+  font-variant-numeric:tabular-nums}
+.f input::placeholder{color:var(--text-3);font-weight:500}
+.eye{width:52px;align-self:stretch;display:flex;align-items:center;justify-content:center;
+  border:none;background:none;cursor:pointer}
+.eye svg{width:19px;height:19px;stroke:#a9abaf;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.eye.on svg{stroke:var(--amber)}
+.eye .slash{display:block}
+.eye.on .slash{display:none}
+
+.btn{width:100%;height:56px;border:none;border-radius:var(--r-ctl);cursor:pointer;
+  background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:#191510;
+  font:700 15px 'SG',sans-serif;letter-spacing:.02em;margin-top:6px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.15);
+  transition:transform .08s ease, filter .18s}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{filter:saturate(.25) brightness(.8);transform:none}
+
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;min-height:20px}
+.link{font-size:12.5px;font-weight:500;color:var(--text-2);text-decoration:none;padding:6px 2px}
+.link b{color:var(--text-1);font-weight:700}
+.msg{font-size:12px;font-weight:500;color:#e0807f}
+
+@media (prefers-reduced-motion:reduce){
+  .led i{animation:none}
+  .btn{transition:none}}
 </style></head><body>
-<div class="wrap">
- <svg class="husky" id="husky" viewBox="0 0 170 150">
-  <!-- telinga -->
-  <path d="M38 52 L30 8 L66 34 Z" fill="#232a36"/><path d="M42 46 L38 20 L58 36 Z" fill="#e8edf5"/>
-  <path d="M132 52 L140 8 L104 34 Z" fill="#232a36"/><path d="M128 46 L132 20 L112 36 Z" fill="#e8edf5"/>
-  <!-- kepala -->
-  <ellipse cx="85" cy="80" rx="52" ry="47" fill="#232a36"/>
-  <path d="M85 42 C60 42 55 70 60 88 C66 108 74 118 85 118 C96 118 104 108 110 88 C115 70 110 42 85 42 Z" fill="#e8edf5"/>
-  <!-- blush -->
-  <circle cx="55" cy="92" r="7" fill="#f2926d" opacity=".75"/><circle cx="115" cy="92" r="7" fill="#f2926d" opacity=".75"/>
-  <!-- mata terbuka -->
-  <g id="eyeOpen">
-   <ellipse cx="68" cy="74" rx="9" ry="10" fill="#10141c"/><circle id="pupL" cx="68" cy="75" r="4.6" fill="#fff"/>
-   <ellipse cx="102" cy="74" rx="9" ry="10" fill="#10141c"/><circle id="pupR" cx="102" cy="75" r="4.6" fill="#fff"/>
-  </g>
-  <!-- mata senang -->
-  <g id="eyeHappy" stroke="#10141c" stroke-width="5" fill="none" stroke-linecap="round">
-   <path d="M60 78 Q68 68 76 78"/><path d="M94 78 Q102 68 110 78"/>
-  </g>
-  <!-- hidung & mulut -->
-  <ellipse cx="85" cy="96" rx="7" ry="5" fill="#10141c"/>
-  <path d="M85 101 L85 108 M85 108 Q79 113 74 108 M85 108 Q91 113 96 108" stroke="#10141c" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <!-- paw: saat cover (translateY 0) posisinya tepat menutupi kedua mata -->
-  <g id="paws">
-   <g id="pawL"><ellipse cx="66" cy="76" rx="21" ry="16" fill="#39424f"/><circle cx="57" cy="67" r="5" fill="#dfe6ef"/><circle cx="67" cy="63" r="5" fill="#dfe6ef"/><circle cx="77" cy="67" r="5" fill="#dfe6ef"/></g>
-   <g id="pawR"><ellipse cx="104" cy="76" rx="21" ry="16" fill="#39424f"/><circle cx="93" cy="67" r="5" fill="#dfe6ef"/><circle cx="103" cy="63" r="5" fill="#dfe6ef"/><circle cx="113" cy="67" r="5" fill="#dfe6ef"/></g>
-  </g>
- </svg>
- <div class="card">
-  <h1>OpenWrt Control</h1>
-  <p class="sub">Husky jaga password-mu</p>
-  <div class="err" id="err"></div>
-  <form id="f" autocomplete="off">
-   <div class="field"><input id="user" placeholder=" " type="text" autocapitalize="none"><label>Nama pengguna</label></div>
-   <div class="field"><input id="pass" placeholder=" " type="password"><label>Kata sandi</label><button type="button" id="eyeBtn">👁</button></div>
-   <button type="submit" class="btn" id="go">Masuk ke Router
-    <span class="door"><span class="frame"></span><span class="man"><i></i><b></b></span><span class="leaf"></span></span>
-   </button>
-  </form>
-  <a class="skip" href="#" id="skip">atau buka halaman router langsung →</a>
- </div>
- <p class="foot">🙈 paw nutup mata saat kamu mengetik sandi</p>
+<div class="stage">
+
+  <header class="deck">
+    <div class="toprow">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 9a11.5 11.5 0 0 1 16 0M7.2 12.4a7 7 0 0 1 9.6 0M10.4 15.6a2.6 2.6 0 0 1 3.2 0"/>
+          <circle cx="12" cy="18.6" r=".9" fill="var(--amber)" stroke="none"/>
+        </svg>
+      </div>
+      <div class="led"><i></i><span>LAN ONLINE</span></div>
+    </div>
+    <h1>Masuk ke<br>router Anda</h1>
+    <p>Kredensial disimpan di perangkat ini dan diisi ulang otomatis tiap sesi.</p>
+    <div class="meta">
+      <div>Perangkat<b>STB · OpenWrt</b></div>
+      <div>Gateway<b id="hostLabel">192.168.1.1</b></div>
+    </div>
+  </header>
+
+  <section class="sheet">
+    <div class="grab"></div>
+    <form id="f" autocomplete="off">
+      <div class="f">
+        <label for="user">Nama pengguna</label>
+        <div class="in"><input id="user" placeholder="mis. root" autocapitalize="none" autocorrect="off"></div>
+      </div>
+      <div class="f">
+        <label for="pass">Kata sandi</label>
+        <div class="in">
+          <input id="pass" type="password" placeholder="••••••••">
+          <button type="button" class="eye" id="eye" aria-label="Tampilkan sandi">
+            <svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.1"/><path class="slash" d="M4 20 20 4"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="btn" id="go" type="submit">Masuk</button>
+      <div class="foot">
+        <a href="#" class="link" id="skip">Lewati, <b>buka langsung <svg width="12" height="12" viewBox="0 0 24 24" style="vertical-align:-1px"><path d="M4 12h14M13 6l6 6-6 6" stroke="#f2f1ee" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></b></a>
+        <a href="#" class="link" id="hostBtn">Ganti IP</a>
+      </div>
+    </form>
+  </section>
+
 </div>
 <script>
-var H=document.getElementById('husky'),pw=document.getElementById('pass'),us=document.getElementById('user'),
-    pupL=document.getElementById('pupL'),pupR=document.getElementById('pupR'),btn=document.getElementById('go'),
-    eyeBtn=document.getElementById('eyeBtn'),err=document.getElementById('err');
-var saved={u:'root',p:''};
-try{var s=AndroidBridge.getSaved();if(s)saved=JSON.parse(s);}catch(e){}
-us.value=saved.u||'root'; pw.value=saved.p||'';
-if(location.search.indexOf('err=1')>=0){err.className='err show';err.textContent='Router tidak terjangkau — pastikan HP tersambung ke Wi-Fi router.';}
-
-pw.addEventListener('focus',function(){H.classList.add('cover')});
-pw.addEventListener('input',function(){H.classList.add('cover')});
-us.addEventListener('focus',function(){H.classList.remove('cover','peek')});
-function off(){if(eyeBtn.classList.contains('on')){H.classList.remove('cover');H.classList.add('peek')}else if(document.activeElement!==pw){H.classList.remove('cover','peek')}}
-pw.addEventListener('blur',function(){setTimeout(off,120)});
-eyeBtn.addEventListener('click',function(){
- var show=pw.type==='password';pw.type=show?'text':'password';eyeBtn.classList.toggle('on',show);
- H.classList.toggle('peek',show); if(show)H.classList.remove('cover'); else if(document.activeElement===pw)H.classList.add('cover');
-});
-/* mata melirik mengikuti sentuhan */
-document.addEventListener('touchmove',function(t){look(t.touches[0].clientX,t.touches[0].clientY)},{passive:true});
-document.addEventListener('mousemove',function(t){look(t.clientX,t.clientY)});
-function look(x,y){var w=innerWidth,h=innerHeight;var dx=Math.max(-3,Math.min(3,(x/w-.5)*7)),dy=Math.max(-2.5,Math.min(2.5,(y/h-.5)*5));
- pupL.setAttribute('transform','translate('+dx+','+dy+')');pupR.setAttribute('transform','translate('+dx+','+dy+')');}
-
-document.getElementById('f').addEventListener('submit',function(ev){
- ev.preventDefault();
- if(navigator.vibrate)navigator.vibrate(12);
- H.classList.add('cover');btn.classList.add('go');
- setTimeout(function(){H.classList.remove('cover');H.classList.add('happy');},350);
- setTimeout(function(){try{AndroidBridge.login(us.value.trim(),pw.value)}catch(e){}},950);
-});
-document.getElementById('skip').addEventListener('click',function(ev){ev.preventDefault();try{AndroidBridge.skip()}catch(e){}});
+var us=document.getElementById('user'),pw=document.getElementById('pass'),
+    go=document.getElementById('go'),eye=document.getElementById('eye'),
+    foot=document.querySelector('.foot'),hostLabel=document.getElementById('hostLabel');
+try{var s=AndroidBridge.getSaved();if(s){var j=JSON.parse(s);us.value=j.u==='root'?'':(j.u||'');pw.value=j.p||'';
+    if(j.h)hostLabel.textContent=String(j.h).replace(/^https?:\/\//,'');}}catch(e){}
+if(location.search.indexOf('err=1')>=0){var d=document.createElement('span');d.className='msg';
+ d.textContent='Router tidak terjangkau';foot.prepend(d);}
+eye.addEventListener('click',function(){var show=pw.type==='password';pw.type=show?'text':'password';
+ eye.classList.toggle('on',show);pw.focus();});
+document.getElementById('f').addEventListener('submit',function(ev){ev.preventDefault();
+ go.disabled=true;go.textContent='Menghubungkan…';
+ setTimeout(function(){try{AndroidBridge.login(us.value.trim()||'root',pw.value)}
+ catch(e){go.disabled=false;go.textContent='Masuk'}},420)});
+document.getElementById('skip').addEventListener('click',function(ev){ev.preventDefault();
+ try{AndroidBridge.skip()}catch(e){}});
+document.getElementById('hostBtn').addEventListener('click',function(ev){ev.preventDefault();
+ try{AndroidBridge.changeHost()}catch(e){}});
 </script>
 </body></html>

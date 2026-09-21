@@ -6,25 +6,18 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
 
 ## ✨ Fitur
 
-- 🐺 **Login "Husky Guard"** — layar pembuka custom penuh animasi: husky kartun menutup mata dengan paw saat kamu mengetik sandi, mata melirik mengikuti sentuhan, paw mengintip saat ikon 👁 ditekan, dan senang saat login berhasil; kredensial disimpan lalu form login LuCI diisi & dikirim otomatis
-- 🚪 **Tombol Masuk dengan pintu** — animasi pintu terbuka + stickman berjalan masuk saat submit (ala video referensi)
-- 📱 **Fullscreen tanpa bar** — tidak ada status bar, tidak ada header/loading bar ala browser; kontrol hanya FAB ☰ cyan di pojok
-- 🧊 Kaca *glassmorphism* + glow teal-biru, latar gelap, tanpa kedip putih
+- 🎨 **Desain "quiet luxury"** — hasil riset aturan anti-slop (taste-skill) + pola login kelas dunia: charcoal matte, satu aksen amber, Space Grotesk (font custom dibundel), bottom-sheet dengan drag handle, LED status berdenyut, hierarki tipografi presisi. Tanpa gradien ungu generik, tanpa emoji tempelan
+- 🔐 **Auto-login LuCI** — kredensial tersimpan di HP, form login router diisi & dikirim otomatis tiap sesi; toggle lihat sandi dengan ikon mata
+- 📱 **Fullscreen tanpa bar** — tidak ada status bar / header / progress bar ala browser; kontrol hanya FAB ☰ di halaman router
 - 🧭 **Semua menu LuCI utuh** — WebView penuh: JavaScript, cookies, zoom, back HP = kembali halaman
-- 🔄 **Menu cepat (FAB)** — Muat Ulang / Beranda / Halaman Login / Ganti Alamat Router / Logout
-- 🌐 **Ganti alamat router dari dalam aplikasi** — tidak terpaku di `192.168.1.1`
+- 🌐 **Ganti alamat router** dari layar login (tautan "Ganti IP") atau menu FAB
+- 🔄 **Menu cepat (FAB)** — Muat Ulang / Beranda / Halaman Login / Ganti Alamat / Logout
 
 ## 📸 Pratinjau Tampilan
 
-| Idle — mata terbuka | 🙈 Mengetik sandi — paw menutup mata | ✅ Login berhasil — husky senang |
-|---|---|---|
-| ![idle](docs/screenshots/02-login-native.png) | ![cover](docs/screenshots/03-husky-jaga-sandi.png) | ![happy](docs/screenshots/04-login-berhasil.png) |
-
-Setelah login, halaman LuCI tampil **fullscreen tanpa bar apa pun** — hanya tombol ☰ mengambang:
-
-![dashboard](docs/screenshots/01-dashboard-status.png)
-
-> Gambar adalah render 1:1 dari HTML/aset yang benar-benar dipakai aplikasi (bukan emulator).
+| Login (render 1:1 aset asli) | Halaman router fullscreen |
+|---|---|
+| ![login](docs/screenshots/02-login-native.png) | ![dashboard](docs/screenshots/01-dashboard-status.png) |
 
 ## 📥 Cara Install
 
