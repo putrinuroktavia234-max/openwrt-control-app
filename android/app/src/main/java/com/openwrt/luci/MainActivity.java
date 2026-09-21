@@ -196,6 +196,30 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void openPage(final String page) {
+            runOnUiThread(() -> {
+                java.util.Map<String, String> m = new java.util.HashMap<>();
+                m.put("modemband", "/cgi-bin/luci/admin/modem/luci-app-modemband");
+                m.put("modeminfo", "/cgi-bin/luci/admin/modem/main/main");
+                m.put("3ginfo-lite", "/cgi-bin/luci/admin/modem/3ginfo-lite");
+                m.put("droidnet", "/cgi-bin/luci/admin/services/droidnet");
+                m.put("openclash", "/cgi-bin/luci/admin/services/openclash");
+                m.put("tailscale", "/cgi-bin/luci/admin/vpn/tailscale");
+                m.put("amlogic", "/cgi-bin/luci/admin/system/amlogic");
+                m.put("diskman", "/cgi-bin/luci/admin/system/diskman");
+                m.put("eqosplus", "/cgi-bin/luci/admin/control/eqosplus");
+                m.put("mac-todong", "/cgi-bin/luci/admin/services/mac-todong");
+                m.put("netmonitor", "/cgi-bin/luci/admin/status/netmonitor");
+                m.put("release-ram", "/cgi-bin/luci/admin/status/release_ram");
+                m.put("packages", "/cgi-bin/luci/admin/system/packages");
+                m.put("ttyd", "/cgi-bin/luci/admin/system/ttyd");
+                String path = m.get(page);
+                autoLoginPending = true;
+                webView.loadUrl(routerHost + (path != null ? path : "/cgi-bin/luci"));
+            });
+        }
+
+        @JavascriptInterface
         public void changeHost() {
             runOnUiThread(MainActivity.this::showHostDialog);
         }

@@ -170,6 +170,9 @@ if(!window.App&&location.search.indexOf('mock')>=0){
      if(c.indexOf('dhcp.leases')>=0)r='1758588140 AA:BB:CC:11:22:33 192.168.1.50 HP-Ali *\n1758588140 AA:BB:CC:44:55:66 192.168.1.63 TV-Ruang *';
      else if(c.indexOf('loadavg')>=0)r='0.34 0.21 0.12 1/123 4567';
      else if(c.indexOf('uci show')>=0)r="wireless.wlan0='wifi-device'\nwireless.wlan0.channel='6'\nwireless.wlan0.htmode='HT20'\nwireless.wlan0.disabled='0'\nwireless.radio0='wifi-device'\nwireless.radio0.channel='auto'\nwireless.radio0.disabled='1'\nwireless.default='wifi-iface'\nwireless.default.device='wlan0'\nwireless.default.network='lan'\nwireless.default.mode='ap'\nwireless.default.ssid='KRISTAL-24G'\nwireless.default.encryption='psk2'\nwireless.default.key='rahasia123'\nwireless.fwwan='wifi-iface'\nwireless.fwwan.device='radio0'\nwireless.fwwan.network='wan'\nwireless.fwwan.mode='sta'\nwireless.fwwan.ssid='MI9-Tether'\nwireless.fwwan.encryption='none'\n";
+     else if(c.indexOf('mmcli -L')>=0)r='/org/freedesktop/ModemManager1/Modem/0 [Quectel] EC200A';
+     else if(c.indexOf('mmcli')>=0)r="modem.state='connected (default bearer activated)'\ngeneral.manufacturer='Quectel'\ngeneral.model='EC200A'\ngeneral.imei='861234567890123'\n3gpp.imsi='510012345678901'\n3gpp.operator-code='510 01'\n3gpp.operator='Telkomsel'\n3gpp.apn='internet'\nnetwork.device='cdc_wdm'\nnetwork.technology='lte'\nnetwork.state='connected'\nnetwork.position='0,0'\nnetwork.pdp.contexts='2'\nmode.enabled='allowed-mode=4g'\nnetwork.signal.level='-67 dBm'\nnetwork.quality='78'\n";
+     else if(c.indexOf('init.d')>=0)r='openclash:on\ntailscale:on\nupnpd:off\neqosplus:off\ninternet-detector:on\n';
      else if(c.indexOf('ping')>=0)r='PING 8.8.8.8 (8.8.8.8): 56 data bytes\n64 bytes from 8.8.8.8: seq=0 ttl=118 time=14.21 ms\n64 bytes from 8.8.8.8: seq=1 ttl=118 time=12.90 ms\n\n3 packets transmitted, 2 received, 33% loss\n';
      else r=''}
    __cb(id,JSON.stringify({result:r}))},220)},
@@ -197,15 +200,16 @@ var IC={home:svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><pat
  dev:svg('<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M10.5 18.5h3"/>'),
  sys:svg('<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"/>'),
  reboot:svg('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/>'),
+ sig:svg('<path d="M4 20v-5M9.3 20V10M14.7 20V6M20 20V12"/>'),
  panel:svg('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l2.5 2.5L7 14M12 14h5"/>')}
 
 /* ===== state ===== */
-var cache={board:null,ifaces:[],st:{},wifi:null,dev:null,leases:null,load:'',uci:null};
+var cache={board:null,ifaces:[],st:{},wifi:null,dev:null,leases:null,load:'',uci:null,mm:null,srv:null};
 var tab=(location.hash||'#home').slice(1);
-if(['home','wifi','net','dev','sys'].indexOf(tab)<0)tab='home';
+if(['home','wifi','net','modem','dev','sys'].indexOf(tab)<0)tab='home';
 var TABS=[['home','Beranda',IC.home],['wifi','WiFi',IC.wifi],['net','Jaringan',IC.net],
-          ['dev','Perangkat',IC.dev],['sys','Sistem',IC.sys]];
-var TITLES={home:'Router',wifi:'WiFi',net:'Jaringan',dev:'Perangkat',sys:'Sistem'};
+          ['modem','Modem',IC.sig],['dev','Perangkat',IC.dev],['sys','Sistem',IC.sys]];
+var TITLES={home:'Router',wifi:'WiFi',net:'Jaringan',modem:'Modem',dev:'Perangkat',sys:'Sistem'};
 
 function parseLeases(txt){
  if(!txt||txt.indexOf('No such')>=0)return[];
@@ -323,6 +327,45 @@ function screenDev(){
    '<div class="ip">'+esc(x.ip||'')+'</div></div>'}).join('')+
  '</div><div class="empty" style="padding-top:4px">Ketuk perangkat untuk memutus sambungnya (kick).</div>'}
 
+function screenModem(){
+ var mm=cache.mm,h='';
+ var wan=wanList()[0]||cache.ifaces.filter(function(i){return i.interface==='wan'})[0];
+ var s=wan?cache.st[wan.interface]||{}:{};
+ if(!mm){
+  h+='<div class="card"><h3>Modem USB / Tethering</h3><div class="empty" style="padding:16px 8px">'+
+  'modem-manager tidak menemukan perangkat.<br>Sambungkan HP via USB tethering atau WiFi (wsap), lalu tarik ulang.</div></div>';
+ }else{
+  var kv=mm.kv;
+  var state=(kv['modem.state']||'').toLowerCase();
+  var ok=state.indexOf('registered')>=0||state.indexOf('connected')>=0;
+  h+='<div class="card"><h3>Modem terdeteksi</h3>'+
+   '<div class="nm" style="font-size:14px;font-weight:700;margin-bottom:8px">'+esc(kv['general.manufacturer']||'Modem')+
+   ' <small style="color:var(--t3)">'+esc(kv['general.model']||'')+'</small>'+
+   '<span class="tag '+(ok?'g':'r')+'" style="margin-left:8px">'+esc(kv['modem.state']||'—')+'</span></div>'+
+   rows([['Sinyal',(kv['network.quality']!=null?kv['network.quality']+'%':'—')],
+    ['Mode seleksi',esc(kv['mode.enabled']||'—')],
+    ['IMSI',esc(kv['3gpp.imsi']||'—')],['IMEI',esc(kv['general.imei']||'—')],
+    ['Operator',(kv['3gpp.operator-code']||'')+(kv['3gpp.operator']?' · '+esc(kv['3gpp.operator']):'')],
+    ['Access point',esc(kv['3gpp.apn']||'—')]])+
+   '<button class="btn ghost" data-act="rescan">Pindai ulang sinyal & status</button></div>';
+ }
+ h+='<div class="card"><h3>Koneksi internet aktif</h3>'+rows([
+  ['Antarmuka',wan?wan.interface:'—'],
+  ['Perangkat',s['l3_device']||s.device||(wan&&wan.device)||'—'],
+  ['IPv4',s['ipv4-address']&&s['ipv4-address'][0]?s['ipv4-address'][0].address+'/'+s['ipv4-address'][0].mask:'—'],
+  ['Gerbang',((s.route||[]).filter(function(r){return r.target==='0.0.0.0'})[0]||{}).nexthop||'—'],
+  ['DNS',(s.dns||[]).join(' · ')||'—'],
+  ['Turun / Naik',s.data?human(s.data.rx_bytes)+' / '+human(s.data.tx_bytes):'—'],
+  ['Sesi aktif',s.uptime?fmtUp(s.uptime):'—']])+'</div>';
+ h+='<div class="card"><h3>Panel modem & proxy bawaan build</h3>'+
+  '<button class="act" data-web="modemband">'+IC.sig+'Preferred LTE/5G Bands<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="modeminfo">'+IC.dev+'Modeminfo (Network/HW/Setup)<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="3ginfo-lite">'+IC.net+'3GInfo (sinyal & koneksi)<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="openclash">'+IC.panel+'OpenClash<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="tailscale">'+IC.net+'Tailscale VPN<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="droidnet">'+IC.wifi+'DroidNet (USB HP)<span class="t">LuCI</span></button></div>';
+ return h}
+
 function screenSys(){
  var b=cache.board;
  var h='<div class="card"><h3>Perangkat</h3>'+rows([
@@ -332,6 +375,23 @@ function screenSys(){
  h+='<div class="card"><h3>Uji koneksi (ping dari router)</h3>'+
   '<div class="fld"><div class="in"><input id="pingHost" value="8.8.8.8" placeholder="8.8.8.8 atau nama situs"></div></div>'+
   '<button class="btn ghost" id="pingGo">Ping 3×</button><pre class="out" id="pingOut" style="display:none"></pre></div>';
+ h+='<div class="card"><h3>Layanan berjalan</h3>';
+ if(cache.srv&&Object.keys(cache.srv).length){
+  h+=Object.keys(cache.srv).map(function(n){
+   return'<div class="row"><span class="k">'+esc(n)+'<span style="color:var(--t3);font-size:11px"> · /etc/init.d</span></span>'+
+    '<button class="toggle '+(cache.srv[n]?'on':'')+'" data-srv="'+esc(n)+'"></button></div>'}).join('');
+ }else h+='<div class="empty" style="padding:10px">Tidak ada layanan init.d yang terdeteksi.</div>';
+ h+='</div>';
+ h+='<div class="card"><h3>Panel aplikasi build (LuCI)</h3>'+
+  '<button class="act" data-web="amlogic">'+IC.sys+'Amlogic Menu / Install eMMC<span class="t">ophub</span></button>'+
+  '<button class="act" data-web="diskman">'+IC.dev+'Disk Manager<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="eqosplus">'+IC.net+'EQoS Plus<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="mac-todong">'+IC.dev+'MacTODONG (kontrol akses)<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="netmonitor">'+IC.sig+'Net Monitor<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="release-ram">'+IC.sys+'Release RAM<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="packages">'+IC.sys+'Manajer paket<span class="t">LuCI</span></button>'+
+  '<button class="act" data-web="ttyd">'+IC.panel+'Terminal web (ttyd)<span class="t">LuCI</span></button>'+
+  '<button class="act" data-act="web">'+IC.panel+'Semua halaman LuCI<span class="t">penuh</span></button></div>';
  h+='<div class="card"><h3>Tindakan</h3>'+
   '<button class="act" data-act="reload">'+IC.wifi+'Muat ulang WiFi<span class="t">±5 dtk</span></button>'+
   '<button class="act" data-act="web">'+IC.panel+'Buka panel LuCI lengkap<span class="t">semua setting</span></button>'+
@@ -353,8 +413,31 @@ function loadAll(){
     return Promise.allSettled(cache.ifaces.slice(0,6).map(function(i){
       return rpc('network.interface','status',{interface:i.interface}).
        then(function(s){cache.st[i.interface]=s})}))} ),
-  sh(['uci','show','wireless']).then(function(s){cache.uci=parseUci(s)})
+  sh(['uci','show','wireless']).then(function(s){cache.uci=parseUci(s)}),
+  loadModem(), loadSrv()
  ])}
+function parseKV(txt){
+ var o={};
+ (txt||'').split('\n').forEach(function(l){
+  var m=l.match(/^([\w._-]+)\s*=\s*'?(.*?)'?\s*$/);if(m)o[m[1]]=m[2]});
+ return o}
+function loadModem(){
+ return sh(['mmcli','-L']).then(function(out){
+  if(!out||out.indexOf('not found')>=0||out.indexOf('no modems')>=0){cache.mm=null;return}
+  var m=out.match(/Modem\/(\d+)/i);if(!m){cache.mm=null;return}
+  var idx=m[1];
+  return sh(['mmcli','-m',idx,'-K']).then(function(k){
+   cache.mm={idx:idx,kv:parseKV(k),at:Date.now()}}).catch(function(){})})
+  .catch(function(){})}
+var SRV_LIST=['openclash','tailscale','frps','zerotier','upnpd','docker','eqosplus','internet-detector','samba4','vsftpd','transmission'];
+function loadSrv(){
+ var js='';
+ SRV_LIST.forEach(function(s){
+  js+="[ -x /etc/init.d/"+s+" ] && { /etc/init.d/"+s+" running 2>/dev/null && echo "+s+":on || echo "+s+":off; };"});
+ return sh(['sh','-c',js]).then(function(out){
+  var r={};(out||'').split('\n').forEach(function(l){
+   var m=l.trim().match(/^([\w.-]+):(on|off)$/);if(m)r[m[1]]=m[2]==='on'});
+  cache.srv=r}).catch(function(){})}
 
 /* ===== aksi ===== */
 function q(s){return"'"+String(s).replace(/'/g,"'\\''")+"'"}
@@ -410,8 +493,21 @@ function bind(){
   sh(['ping','-c','3','-w','8',host2]).then(function(out){
    pg.textContent='Ping 3×';var o=$('#pingOut');o.style.display='block';o.textContent=out||'(kosong)'}).
   catch(function(){pg.textContent='Ping 3×';msg('Ping gagal')})});
+ document.querySelectorAll('[data-web]').forEach(function(a){a.addEventListener('click',function(){
+  try{App.openPage(a.dataset.web)}catch(e){msg('Tidak bisa membuka halaman')}})});
+ document.querySelectorAll('[data-srv]').forEach(function(t){t.addEventListener('click',function(){
+  var n=t.dataset.srv,want=!t.classList.contains('on');t.classList.toggle('on',want);
+  sh(['/etc/init.d/'+n,want?'enable':'disable']).catch(function(){});
+  sh(['/etc/init.d/'+n,want?'start':'stop']).then(function(){
+    msg(n+(want?' dinyalakan':' dimatikan'));setTimeout(refresh2,1500)}).
+   catch(function(){t.classList.toggle('on',!want);msg('Gagal mengubah '+n)})})});
+ var rs=document.querySelector('[data-act="rescan"]');
+ if(rs)rs.addEventListener('click',function(){rs.textContent='Memindai…';
+  loadModem().then(function(){rs.textContent='Pindai ulang sinyal & status';render()}).
+   catch(function(){rs.textContent='Pindai ulang sinyal & status'})});
  document.querySelectorAll('[data-act]').forEach(function(a){a.addEventListener('click',function(){
   var k=a.dataset.act;
+  if(k==='rescan')return;
   if(k==='web')return App.openWeb();
   if(k==='host')return App.changeHost();
   if(k==='out')return App.goLogin();
@@ -423,7 +519,7 @@ function bind(){
 /* ===== shell aplikasi ===== */
 function render(){
  $('#view').innerHTML=tab==='home'?screenHome():tab==='wifi'?screenWifi():
-  tab==='net'?screenNet():tab==='dev'?screenDev():screenSys();
+  tab==='net'?screenNet():tab==='modem'?screenModem():tab==='dev'?screenDev():screenSys();
  bind()}
 function buildTabs(){
  $('#tabs').innerHTML=TABS.map(function(t){
