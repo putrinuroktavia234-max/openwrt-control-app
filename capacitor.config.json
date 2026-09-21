@@ -1,6 +1,0 @@
-{
-  "appId": "com.openwrt.luci",
-  "appName": "OpenWrt Control",
-  "webDir": "www",
-  "bundledWebRuntime": false
-}

@@ -2,32 +2,45 @@ name: Build OpenWrt APK
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Build Debug APK
-        run: |
-          echo "Building APK simulation / setup wrapper..."
-          # Placeholder for gradle build setup
-          mkdir -p output
-          echo "OpenWrt App Wrapper" > output/README.txt
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Upload Artifact
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: Grant execute permission for gradlew
+        working-directory: android
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --warning-mode=none
+
+      - name: Locate APK
+        id: apk
+        run: |
+          APK=$(find android/app/build/outputs/apk -name "*.apk" | head -1)
+          echo "path=$APK" >> "$GITHUB_OUTPUT"
+          echo "Found: $APK"
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-Control-App
-          path: output/
+          name: OpenWrt-Control-Debug
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
