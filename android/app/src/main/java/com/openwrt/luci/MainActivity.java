@@ -196,6 +196,14 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void openAndro() {
+            runOnUiThread(() -> {
+                autoLoginPending = false;
+                webView.loadUrl(routerHost + ":49153");
+            });
+        }
+
+        @JavascriptInterface
         public void openPage(final String page) {
             runOnUiThread(() -> {
                 java.util.Map<String, String> m = new java.util.HashMap<>();

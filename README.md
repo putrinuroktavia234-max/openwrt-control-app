@@ -11,7 +11,7 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
   - **Beranda** — uptime, jumlah perangkat, radio aktif, IP internet, memori + beban CPU, ringkasan tiap WiFi
   - **WiFi** — saklar radio on/off, **ganti nama (SSID) & kata sandi WiFi langsung dari aplikasi**, mode klien/station (repeater/tethering), kanal & lebar kanal per radio
   - **Jaringan** — semua antarmuka dengan IP/gateway/DNS/trafik, deteksi modem HP dengan badge khusus, trafik fisik per perangkat
-  - **Modem** — baca langsung modem-manager (merk/model, sinyal, mode 4G, IMSI/IMEI, operator, APN) + status koneksi tethering + pintasan panel bawaan (Modemband, Modeminfo, 3GInfo, OpenClash, Tailscale, DroidNet)
+  - **OpenWrt** — baca langsung modem-manager (merk/model, sinyal, mode 4G, IMSI/IMEI, operator, APN) + status koneksi tethering + **AndroModem** (basiooo/andromodem: status layanan, buka dasbor :49153, start/stop) + pintasan panel bawaan (Modemband, Modeminfo, 3GInfo, OpenClash, Tailscale, DroidNet)
   - **Perangkat** — daftar klien (nama/MAC/IP), **ketuk untuk menendang (kick) perangkat dari WiFi**
   - **Sistem** — info perangkat, ping test dari router, **saklar layanan init.d (openclash/tailscale/upnpd/dst)**, pintasan panel aplikasi build (Amlogic, Diskman, EQoS+, MacTODONG, Netmonitor, Release RAM, packages, ttyd), reboot
 - ⚡ **Data live via RPC ubus/jsonrpc** — auto-refresh tiap 6 detik, dialog konfirmasi Android asli untuk aksi berbahaya
