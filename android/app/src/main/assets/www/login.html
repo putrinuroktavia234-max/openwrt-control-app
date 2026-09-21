@@ -139,19 +139,24 @@ body{background:var(--ink);font-family:'SG',system-ui,sans-serif;color:var(--tex
 var us=document.getElementById('user'),pw=document.getElementById('pass'),
     go=document.getElementById('go'),eye=document.getElementById('eye'),
     foot=document.querySelector('.foot'),hostLabel=document.getElementById('hostLabel');
-try{var s=AndroidBridge.getSaved();if(s){var j=JSON.parse(s);us.value=j.u==='root'?'':(j.u||'');pw.value=j.p||'';
+try{var s=App.getSaved();if(s){var j=JSON.parse(s);us.value=j.u==='root'?'':(j.u||'');pw.value=j.p||'';
     if(j.h)hostLabel.textContent=String(j.h).replace(/^https?:\/\//,'');}}catch(e){}
-if(location.search.indexOf('err=1')>=0){var d=document.createElement('span');d.className='msg';
- d.textContent='Router tidak terjangkau';foot.prepend(d);}
+function showErr(txt){var old=document.querySelector('.msg');if(old)old.remove();
+ var d=document.createElement('span');d.className='msg';d.textContent=txt;foot.prepend(d);
+ go.disabled=false;go.textContent='Masuk'}
+window.__loginFail=showErr;
+if(location.search.indexOf('err=1')>=0)showErr('Router tidak terjangkau');
+if(location.search.indexOf('err=2')>=0)showErr('Sesi kedaluwarsa — masuk ulang');
+if(location.search.indexOf('back=1')>=0)showErr('Keluar dari dashboard. Masuk untuk lanjut.');
 eye.addEventListener('click',function(){var show=pw.type==='password';pw.type=show?'text':'password';
  eye.classList.toggle('on',show);pw.focus();});
 document.getElementById('f').addEventListener('submit',function(ev){ev.preventDefault();
  go.disabled=true;go.textContent='Menghubungkan…';
- setTimeout(function(){try{AndroidBridge.login(us.value.trim()||'root',pw.value)}
- catch(e){go.disabled=false;go.textContent='Masuk'}},420)});
+ try{App.login(us.value.trim()||'root',pw.value)}
+ catch(e){showErr('Jembatan aplikasi tidak aktif')}});
 document.getElementById('skip').addEventListener('click',function(ev){ev.preventDefault();
- try{AndroidBridge.skip()}catch(e){}});
+ try{App.skip()}catch(e){}});
 document.getElementById('hostBtn').addEventListener('click',function(ev){ev.preventDefault();
- try{AndroidBridge.changeHost()}catch(e){}});
+ try{App.changeHost()}catch(e){}});
 </script>
 </body></html>

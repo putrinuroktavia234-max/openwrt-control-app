@@ -7,17 +7,18 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
 ## ✨ Fitur
 
 - 🎨 **Desain "quiet luxury"** — hasil riset aturan anti-slop (taste-skill) + pola login kelas dunia: charcoal matte, satu aksen amber, Space Grotesk (font custom dibundel), bottom-sheet dengan drag handle, LED status berdenyut, hierarki tipografi presisi. Tanpa gradien ungu generik, tanpa emoji tempelan
-- 🔐 **Auto-login LuCI** — kredensial tersimpan di HP, form login router diisi & dikirim otomatis tiap sesi; toggle lihat sandi dengan ikon mata
-- 📱 **Fullscreen tanpa bar** — tidak ada status bar / header / progress bar ala browser; kontrol hanya FAB ☰ di halaman router
-- 🧭 **Semua menu LuCI utuh** — WebView penuh: JavaScript, cookies, zoom, back HP = kembali halaman
-- 🌐 **Ganti alamat router** dari layar login (tautan "Ganti IP") atau menu FAB
-- 🔄 **Menu cepat (FAB)** — Muat Ulang / Beranda / Halaman Login / Ganti Alamat / Logout
+- 📊 **Aplikasi penuh, bukan tempelan web** — setelah login kamu masuk dashboard custom (bukan halaman LuCI): tab **Beranda** (uptime, memori, beban, radio WiFi, IP), **Jaringan** (status LAN, trafik per antarmuka, saklar WiFi on/off), **Perangkat** (klien DHCP dengan nama/MAC/IP), **Sistem** (model/firmware/kernel, muat ulang WiFi, reboot, panel LuCI penuh)
+- ⚡ **Data live via RPC ubus/jsonrpc** — auto-refresh tiap 6 detik, dialog konfirmasi Android asli untuk aksi berbahaya
+- 🔐 **Login sekali** — kredensial tersimpan, sesi RPC dipulihkan otomatis bila kedaluwarsa
+- 🧭 **Panel LuCI lengkap tetap tersedia** dari tab Sistem untuk setting lanjutan
 
 ## 📸 Pratinjau Tampilan
 
-| Login (render 1:1 aset asli) | Halaman router fullscreen |
-|---|---|
-| ![login](docs/screenshots/02-login-native.png) | ![dashboard](docs/screenshots/01-dashboard-status.png) |
+| Login | Beranda | Jaringan | Perangkat | Sistem |
+|---|---|---|---|---|
+| ![login](docs/screenshots/02-login-native.png) | ![home](docs/screenshots/10-tab-beranda.png) | ![net](docs/screenshots/11-tab-jaringan.png) | ![dev](docs/screenshots/12-tab-perangkat.png) | ![sys](docs/screenshots/13-tab-sistem.png) |
+
+> Render 1:1 dari aset aplikasi sungguhan dengan data contoh (mock) — di HP, angka terisi dari router aslimu via RPC.
 
 ## 📥 Cara Install
 
