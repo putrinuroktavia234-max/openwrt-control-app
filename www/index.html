@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWrt B860H Connect</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+        h2 { margin-bottom: 8px; color: #38bdf8; }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #0284c7;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #0369a1; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>OpenWrt B860H</h2>
+        <p>Masukkan Alamat IP Router Anda</p>
+        <input type="text" id="routerIp" value="http://192.168.1.1">
+        <button onclick="connectRouter()">Hubungkan</button>
+    </div>
+
+    <script>
+        function connectRouter() {
+            let ip = document.getElementById('routerIp').value.trim();
+            if (!ip) {
+                alert('IP tidak boleh kosong!');
+                return;
+            }
+            if (!ip.startsWith('http://') && !ip.startsWith('https://')) {
+                ip = 'http://' + ip;
+            }
+            localStorage.setItem('openwrt_ip', ip);
+            window.location.href = ip;
+        }
+
+        window.onload = function() {
+            let savedIp = localStorage.getItem('openwrt_ip');
+            if (savedIp) {
+                window.location.href = savedIp;
+            }
+        }
+    </script>
+</body>
+</html>

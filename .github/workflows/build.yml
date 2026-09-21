@@ -1,0 +1,30 @@
+name: Build OpenWrt APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build Debug APK
+        run: |
+          echo "Building APK simulation / setup wrapper..."
+          # Placeholder for gradle build setup
+          mkdir -p output
+          echo "OpenWrt App Wrapper" > output/README.txt
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt-Control-App
+          path: output/
