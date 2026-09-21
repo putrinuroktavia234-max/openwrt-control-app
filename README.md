@@ -8,14 +8,16 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
 
 - 🎨 **Desain "quiet luxury"** — hasil riset aturan anti-slop (taste-skill) + pola login kelas dunia: charcoal matte, satu aksen amber, Space Grotesk (font custom dibundel), bottom-sheet dengan drag handle, LED status berdenyut, hierarki tipografi presisi. Tanpa gradien ungu generik, tanpa emoji tempelan
 - 📊 **Aplikasi penuh, bukan tempelan web** — dashboard custom 6 tab bicara langsung ke router via RPC ubus + shell rpcd. Disesuaikan utk build **ImmortalWrt 24.10 di B860H (ophub/flippy, s905x)** berikut aplikasi bawaannya:
-  - **Beranda** — uptime, jumlah perangkat, radio aktif, IP internet, memori + beban CPU, ringkasan tiap WiFi
+  - **Beranda** — uptime, jumlah perangkat, radio aktif, IP internet, memori + beban CPU, **grafik histori memori   - **Beranda** — uptime, jumlah perangkat, radio aktif, IP internet, memori + beban CPU, ringkasan tiap WiFi jumlah perangkat**
   - **WiFi** — saklar radio on/off, **ganti nama (SSID) & kata sandi WiFi langsung dari aplikasi**, mode klien/station (repeater/tethering), kanal & lebar kanal per radio
   - **Jaringan** — semua antarmuka dengan IP/gateway/DNS/trafik, deteksi modem HP dengan badge khusus, trafik fisik per perangkat
-  - **OpenWrt** — baca langsung modem-manager (merk/model, sinyal, mode 4G, IMSI/IMEI, operator, APN) + status koneksi tethering + **AndroModem** (basiooo/andromodem: status layanan, buka dasbor :49153, start/stop) + pintasan panel bawaan (Modemband, Modeminfo, 3GInfo, OpenClash, Tailscale, DroidNet)
+  - **OpenWrt** — baca langsung modem-manager (merk/model, sinyal, mode 4G, IMSI/IMEI, operator, APN) + status koneksi tethering + **AndroModem** (basiooo/andromodem: status layanan, buka dasbor :49153, start/stop) + **grafik kualitas sinyal** modem + pintasan panel bawaan (Modemband, Modeminfo, 3GInfo, OpenClash, Tailscale, DroidNet)
   - **Perangkat** — daftar klien (nama/MAC/IP), **ketuk untuk menendang (kick) perangkat dari WiFi**
   - **Sistem** — info perangkat, ping test dari router, **saklar layanan init.d (openclash/tailscale/upnpd/dst)**, pintasan panel aplikasi build (Amlogic, Diskman, EQoS+, MacTODONG, Netmonitor, Release RAM, packages, ttyd), reboot
 - ⚡ **Data live via RPC ubus/jsonrpc** — auto-refresh tiap 6 detik, dialog konfirmasi Android asli untuk aksi berbahaya
 - 🔐 **Login sekali** — kredensial tersimpan, sesi RPC dipulihkan otomatis bila kedaluwarsa
+- 📈 **Grafik waktu-nyata digambar Canvas murni** (tanpa pustaka pihak ketiga): kecepatan unduh/unggah internet, memori, jumlah perangkat, sinyal modem — riwayat disimpan di HP (localStorage, hemat ~50KB)
+- 🕐 **Riwayat perangkat** — daftar yang pernah terhubung + "terakhir terlihat", terlacak otomatis
 - 🧭 **Panel LuCI lengkap tetap tersedia** dari tab Sistem untuk setting lanjutan
 
 ## 📸 Pratinjau Tampilan
