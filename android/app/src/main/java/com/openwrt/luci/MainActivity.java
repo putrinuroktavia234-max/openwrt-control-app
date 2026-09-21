@@ -201,6 +201,16 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void goLogin() {
+            runOnUiThread(() -> webView.loadUrl(LOGIN_URL + "?back=1"));
+        }
+
+        @JavascriptInterface
+        public void back() {
+            runOnUiThread(MainActivity.this::onBackPressed);
+        }
+
+        @JavascriptInterface
         public void toast(final String msg) {
             runOnUiThread(() -> Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show());
         }

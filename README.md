@@ -7,16 +7,21 @@ Tampilannya aplikasi murni (bukan tab browser): header gelap custom, indikator k
 ## ✨ Fitur
 
 - 🎨 **Desain "quiet luxury"** — hasil riset aturan anti-slop (taste-skill) + pola login kelas dunia: charcoal matte, satu aksen amber, Space Grotesk (font custom dibundel), bottom-sheet dengan drag handle, LED status berdenyut, hierarki tipografi presisi. Tanpa gradien ungu generik, tanpa emoji tempelan
-- 📊 **Aplikasi penuh, bukan tempelan web** — setelah login kamu masuk dashboard custom (bukan halaman LuCI): tab **Beranda** (uptime, memori, beban, radio WiFi, IP), **Jaringan** (status LAN, trafik per antarmuka, saklar WiFi on/off), **Perangkat** (klien DHCP dengan nama/MAC/IP), **Sistem** (model/firmware/kernel, muat ulang WiFi, reboot, panel LuCI penuh)
+- 📊 **Aplikasi penuh, bukan tempelan web** — setelah login masuk dashboard custom 5 tab yang bicara langsung ke router via RPC ubus + shell rpcd:
+  - **Beranda** — uptime, jumlah perangkat, radio aktif, IP internet, memori + beban CPU, ringkasan tiap WiFi
+  - **WiFi** — saklar radio on/off, **ganti nama (SSID) & kata sandi WiFi langsung dari aplikasi**, mode klien/station (repeater/tethering), kanal & lebar kanal per radio
+  - **Jaringan** — semua antarmuka dengan IP/gateway/DNS/trafik, **deteksi modem HP (wsap/usb/tethering) dengan badge khusus**, trafik fisik per perangkat
+  - **Perangkat** — daftar klien (nama/MAC/IP), **ketuk untuk menendang (kick) perangkat dari WiFi**
+  - **Sistem** — info perangkat, **ping test dari router**, muat ulang WiFi, reboot, panel LuCI penuh
 - ⚡ **Data live via RPC ubus/jsonrpc** — auto-refresh tiap 6 detik, dialog konfirmasi Android asli untuk aksi berbahaya
 - 🔐 **Login sekali** — kredensial tersimpan, sesi RPC dipulihkan otomatis bila kedaluwarsa
 - 🧭 **Panel LuCI lengkap tetap tersedia** dari tab Sistem untuk setting lanjutan
 
 ## 📸 Pratinjau Tampilan
 
-| Login | Beranda | Jaringan | Perangkat | Sistem |
+| Login | Beranda | WiFi | Jaringan | Perangkat |
 |---|---|---|---|---|
-| ![login](docs/screenshots/02-login-native.png) | ![home](docs/screenshots/10-tab-beranda.png) | ![net](docs/screenshots/11-tab-jaringan.png) | ![dev](docs/screenshots/12-tab-perangkat.png) | ![sys](docs/screenshots/13-tab-sistem.png) |
+| ![login](docs/screenshots/02-login-native.png) | ![home](docs/screenshots/10-tab-beranda.png) | ![wifi](docs/screenshots/14-tab-wifi.png) | ![net](docs/screenshots/11-tab-jaringan.png) | ![dev](docs/screenshots/12-tab-perangkat.png) |
 
 > Render 1:1 dari aset aplikasi sungguhan dengan data contoh (mock) — di HP, angka terisi dari router aslimu via RPC.
 
