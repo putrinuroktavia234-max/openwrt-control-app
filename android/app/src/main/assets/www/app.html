@@ -62,6 +62,14 @@ body{background:var(--ink);color:var(--t1);font-family:'SG',system-ui,sans-serif
 .dev .mc{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums;margin-top:2px}
 .dev .ip{margin-left:auto;text-align:right;font-size:12px;font-weight:500;color:var(--t2);font-variant-numeric:tabular-nums}
 .empty{padding:26px 8px;text-align:center;color:var(--t3);font-size:12.5px;font-weight:500;line-height:1.6}
+canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);background:var(--raise)}
+.legend{display:flex;gap:14px;margin-top:8px;font-size:10.5px;font-weight:500;color:var(--t3);flex-wrap:wrap}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+.rng{display:flex;gap:6px;margin-bottom:10px}
+.rng button{background:var(--raise);border:1px solid var(--hair);color:var(--t3);
+ font:500 11px 'SG',sans-serif;border-radius:99px;padding:6px 14px;cursor:pointer}
+.rng button.on{color:var(--amber);border-color:rgba(233,180,76,.5);background:rgba(233,180,76,.08)}
+.dev .st{font-size:10px;color:var(--t3);margin-top:2px}
 .fld{margin-bottom:12px}
 .fld label{display:block;font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--t3);
  text-transform:uppercase;margin-bottom:7px}
@@ -122,6 +130,7 @@ svg.owmi{width:21px;height:21px;display:block}
 
 <script>
 'use strict';
+var M_TRX=0;
 /* ===== bridge ke Activity Java ===== */
 var seq=0,cbs={};
 function __cb(id,s){var f=cbs[id];delete cbs[id];if(f)f(s)}
@@ -163,10 +172,12 @@ if(!window.App&&location.search.indexOf('mock')>=0){
      current:{channel:6,frequency:2437,ssid:'KRISTAL-24G',mode:'Ap',encryption:'psk2',htmode:'HT20'},
      associated:[{mac:'AA:BB:CC:11:22:33'},{mac:'AA:BB:CC:44:55:66'}]},
      radio1:{up:false,'network-device':'wlan1',sections:['fwwan'],current:null,associated:[]}};
-   if(ns==='network.device'&&m==='status')r={'br-lan':{name:'br-lan',type:'bridge',stats:{rx_bytes:961520384,tx_bytes:1484210331}},
-     'eth0':{name:'eth0',stats:{rx_bytes:1489322512,tx_bytes:942114520}},
-     'wlan0':{name:'wlan0',stats:{rx_bytes:512114520,tx_bytes:128368602}},
-     'wsap0':{name:'wsap0',stats:{rx_bytes:8214967296,tx_bytes:612145203}}};
+   if(ns==='network.device'&&m==='status'){M_TRX=M_TRX+Math.random()*4e6+8e5;
+     r={'br-lan':{name:'br-lan',type:'bridge',stats:{rx_bytes:961520384+M_TRX,tx_bytes:1484210331+M_TRX*0.4}},
+      'eth0':{name:'eth0',stats:{rx_bytes:1489322512+M_TRX,tx_bytes:942114520+M_TRX*0.4}},
+      'wlan0':{name:'wlan0',stats:{rx_bytes:512114520,tx_bytes:128368602}},
+      'wsap0':{name:'wsap0',stats:{rx_bytes:8214967296+M_TRX,tx_bytes:612145203+M_TRX*0.4}}};
+   }else
    if(ns==='file'&&m==='exec'){var c=(p.command||[]).join(' ');
      if(c.indexOf('dhcp.leases')>=0)r='1758588140 AA:BB:CC:11:22:33 192.168.1.50 HP-Ali *\n1758588140 AA:BB:CC:44:55:66 192.168.1.63 TV-Ruang *';
      else if(c.indexOf('loadavg')>=0)r='0.34 0.21 0.12 1/123 4567';
@@ -244,7 +255,11 @@ function screenHome(){
  '<div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-top:12px">'+
  'Memori '+(b?human(used)+' / '+human(b.memory.total):'')+'</div>'+
  '<div class="bar"><i style="width:'+(b?pct(used,b.memory.total):0)+'%"></i></div>'+
- rows([['Beban CPU (1/5/15 mnt)',cache.load||'—'],['Internet via',wan?wan.interface+' · '+(cache.st[wan.interface]['l3_device']||''):'—']])+'</div>';
+ rows([['Beban CPU (1/5/15 mnt)',cache.load||'—'],['Internet via',wan?wan.interface+' · '+(cache.st[wan.interface]['l3_device']||''):'—']])+'</div>'+
+ chartCard('Pemakaian memori',null,'mem','#b48ce0',null,
+ '<span><i style="background:#b48ce0"></i>Sekarang '+(b?human(used):'—')+'</span>')+
+ chartCard('Jumlah perangkat terhubung',null,'dev','#e9b44c',null,
+ '<span><i style="background:#e9b44c"></i>'+clients+' perangkat · riwayat tersimpan otomatis di HP</span>');
  if(w)for(var k in w){var r=w[k];if(!r||!r.current)continue;var c=r.current;
   h+='<div class="card"><h3>'+esc(k)+' · '+(r.up?'aktif':'mati')+'</h3>'+rows([
    ['Nama',c.ssid],['Klien',(r.associated||[]).length+' perangkat'],
@@ -317,18 +332,35 @@ function screenNet(){
   Object.keys(cache.dev).filter(function(d){return d!=='lo'}).slice(0,8).map(function(d){
    var st=(cache.dev[d]||{}).stats||{};
    return'<div class="row"><span class="k">'+esc(d)+'</span><span class="v">↓'+human(st.rx_bytes)+' ↑'+human(st.tx_bytes)+'</span></div>'}).join('')+'</div>'}
+ h+=chartCard('Kecepatan internet — turun',null,'dl','#e9b44c',null,
+   '<span><i style="background:#e9b44c"></i>Unduh sekarang '+humanBps((HIST.rows[HIST.rows.length-1]||{dl:0}).dl)+'</span>'+
+   '<span style="margin-left:auto">'+HIST.rows.length+' sampel · '+Math.round(HIST.rows.length*8/60)+' mnt</span>')+
+  chartCard('Kecepatan internet — naik',null,'ul','#5b9bd5',null,
+   '<span><i style="background:#5b9bd5"></i>Unggah sekarang '+humanBps((HIST.rows[HIST.rows.length-1]||{ul:0}).ul)+'</span>');
  return h}
 
 function screenDev(){
  var ls=cache.leases;
  if(ls===null)return skel(3);
- if(!ls.length)return'<div class="empty">Belum ada klien DHCP terdaftar.</div>';
- return'<div class="card"><h3>Terhubung · '+ls.length+'</h3>'+ls.map(function(x,i){
+ var h='';
+ h+=chartCard('Riwayat perangkat terhubung',null,'dev','#e9b44c',null,
+ '<span><i style="background:#e9b44c"></i>Grafik jumlah klien tiap 8 detik, tersimpan sampai '+(HIST.max*8/3600).toFixed(0)+' jam</span>');
+ if(ls.length){h+='<div class="card"><h3>Sedang terhubung · '+ls.length+'</h3>'+ls.map(function(x,i){
   var nm=x.hostname||x.mac.split(':').slice(-3).join('-');
   return'<div class="dev" data-kick="'+i+'"><div class="av">'+esc(nm.slice(0,2).toUpperCase())+'</div>'+
    '<div style="min-width:0"><div class="nm">'+esc(nm)+'</div><div class="mc">'+esc(x.mac)+'</div></div>'+
    '<div class="ip">'+esc(x.ip||'')+'</div></div>'}).join('')+
- '</div><div class="empty" style="padding-top:4px">Ketuk perangkat untuk memutus sambungnya (kick).</div>'}
+ '</div><div class="empty" style="padding-top:4px">Ketuk perangkat untuk memutus sambungnya (kick).</div>';}
+ else h+='<div class="empty" style="padding-top:4px">Belum ada klien DHCP terdaftar.</div>';
+ var known=Object.keys(DEVH).filter(function(m){return !ls||!ls.some(function(x){return x.mac===m})});
+ if(known.length){h+='<div class="card"><h3>Riwayat pernah terhubung</h3>'+known.sort(function(a,b){
+   return (DEVH[b].l||0)-(DEVH[a].l||0)}).slice(0,15).map(function(mac){var d=DEVH[mac];
+   var nm=d.n||mac.split(':').slice(-3).join('-');
+   return'<div class="dev"><div class="av" style="opacity:.45">'+esc(nm.slice(0,2).toUpperCase())+'</div>'+
+    '<div style="min-width:0"><div class="nm" style="opacity:.65">'+esc(nm)+'</div><div class="mc">'+esc(mac)+'</div>'+
+    '<div class="st">terakhir terlihat: '+ago(d.l)+'</div></div>'+
+    '<div class="ip">'+esc(d.i||'')+'</div></div>'}).join('')+'</div>'}
+ return h}
 
 function screenModem(){
  var mm=cache.mm,h='';
@@ -350,7 +382,9 @@ function screenModem(){
     ['IMSI',esc(kv['3gpp.imsi']||'—')],['IMEI',esc(kv['general.imei']||'—')],
     ['Operator',(kv['3gpp.operator-code']||'')+(kv['3gpp.operator']?' · '+esc(kv['3gpp.operator']):'')],
     ['Access point',esc(kv['3gpp.apn']||'—')]])+
-   '<button class="btn ghost" data-act="rescan">Pindai ulang sinyal & status</button></div>';
+   '<button class="btn ghost" data-act="rescan">Pindai ulang sinyal & status</button></div>'+
+   chartCard('Kualitas sinyal modem',null,'sig','#8fc98a',null,
+   '<span><i style="background:#8fc98a"></i>Sekarang '+(cache.mm&&cache.mm.kv&&cache.mm.kv['network.quality']!=null?cache.mm.kv['network.quality']+'%':'—')+'</span>');
  }
  h+='<div class="card"><h3>Koneksi internet aktif</h3>'+rows([
   ['Antarmuka',wan?wan.interface:'—'],
@@ -529,11 +563,102 @@ function bind(){
   if(k==='reboot')return confirm('Reboot router? Semua perangkat terputus ±1 menit.',function(){
    msg('Mengirim perintah reboot…');rpc('system','reboot',{}).catch(function(){})})})})}
 
+/* ===== riwayat & grafik (localStorage, zero library) ===== */
+var HIST={rows:[],max:400};
+function histLoad(){try{HIST.rows=JSON.parse(localStorage.getItem('owrt_hist')||'[]')}catch(e){HIST.rows=[]}}
+function histSave(){try{localStorage.setItem('owrt_hist',JSON.stringify(HIST.rows))}catch(e){}}
+histLoad();
+function histSample(){
+ try{
+  var wan=wanList()[0],s=wan?cache.st[wan.interface]||{}:{};
+  var devN=cache.leases?cache.leases.length:0;
+  var b=cache.board;
+  var dl=s.data?s.data.rx_bytes:0,ul=s.data?s.data.tx_bytes:0;
+  var mem=b?b.memory.total-(b.memory.free+(b.memory.buffers||0)+(b.memory.cached||0)):0;
+  var sig=cache.mm&&cache.mm.kv?parseInt(cache.mm.kv['network.quality'],10):NaN;
+  var cpu=cache.load?parseFloat(cache.load.split(' / ')[0]):NaN;
+  var last=HIST.rows[HIST.rows.length-1];
+  var t=Date.now(),row={t:t,dl:0,ul:0,sig:sig||0,mem:mem||0,dev:devN,cpu:cpu||0};
+  if(last&&t-last.t>1500&&dl>=last._rdl){row.dl=Math.round((dl-last._rdl)*1000/(t-last.t));row.ul=Math.round((ul-last._rul)*1000/(t-last.t))}
+  row._rdl=dl;row._rul=ul;
+  if(last&&(dl<last._rdl||ul<last._rul)){/* counter reset */}
+  HIST.rows.push(row);
+  if(HIST.rows.length>HIST.max)HIST.rows=HIST.rows.slice(-HIST.max);
+  histSave();
+ }catch(e){}}
+var DEVH={};
+try{DEVH=JSON.parse(localStorage.getItem('owrt_devhist')||'{}')}catch(e){}
+function devHistSave(){try{localStorage.setItem('owrt_devhist',JSON.stringify(DEVH))}catch(e){}}
+function devHistUpdate(){
+ if(!cache.leases)return;
+ var now=Date.now(),changed=false;
+ cache.leases.forEach(function(x){if(!x.mac)return;
+  var d=DEVH[x.mac]||{f:now,n:'',i:''};
+  if(x.hostname)d.n=x.hostname;
+  if(x.ip)d.i=x.ip;
+  d.l=now;d.c=(d.c||0)+1;
+  DEVH[x.mac]=d;changed=true});
+ if(changed)devHistSave()}
+function ago(ts){var s=(Date.now()-ts)/1000;
+ if(s<90)return'baru saja';if(s<3600)return Math.round(s/60)+' mnt lalu';
+ if(s<86400)return Math.round(s/3600)+' jam lalu';return Math.round(s/86400)+' hari lalu'}
+function humanBps(b){var u=['B/s','KB/s','MB/s','GB/s'],i=0;
+ while(b>=1024&&i<3){b/=1024;i++}return(b>=100?Math.round(b):b.toFixed(1))+' '+u[i]}
+
+function drawChart(cv,rows,key,color,fmt){
+ var dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;
+ if(!W||!H)return;
+ cv.width=W*dpr;cv.height=H*dpr;
+ var g=cv.getContext('2d');g.scale(dpr,dpr);g.clearRect(0,0,W,H);
+ if(!rows||rows.length<2){g.fillStyle='#5d6065';g.font='11px SG,sans-serif';
+  g.fillText('Mengumpulkan data…',12,H/2);return}
+ var max=0,i;
+ for(i=0;i<rows.length;i++)max=Math.max(max,rows[i][key]||0);
+ max=max||1;max*=1.15;
+ var pad=8,n=rows.length;
+ function X(j){return pad+(W-pad*2)*j/(n-1)}
+ function Y(v){return H-pad-(H-pad*2)*(v/max)}
+ g.strokeStyle='rgba(255,255,255,.06)';g.lineWidth=1;
+ for(i=1;i<4;i++){var y=H-pad-(H-pad*2)*i/4;g.beginPath();g.moveTo(pad,y);g.lineTo(W-pad,y);g.stroke()}
+ g.beginPath();
+ for(i=0;i<n;i++){var x=X(i),yy=Y(rows[i][key]||0);
+  if(i===0)g.moveTo(x,yy);else g.lineTo(x,yy)}
+ var grad=g.createLinearGradient(0,0,0,H);
+ grad.addColorStop(0,color+'55');grad.addColorStop(1,color+'05');
+ g.lineTo(X(n-1),H-pad);g.lineTo(X(0),H-pad);g.closePath();
+ g.fillStyle=grad;g.fill();
+ g.beginPath();
+ for(i=0;i<n;i++){var x2=X(i),y2=Y(rows[i][key]||0);
+  if(i===0)g.moveTo(x2,y2);else g.lineTo(x2,y2)}
+ g.strokeStyle=color;g.lineWidth=1.6;g.stroke();
+ var lastV=rows[n-1][key]||0;
+ g.fillStyle='#f2f1ee';g.font='bold 12px SG,sans-serif';
+ g.fillText(fmt(lastV),pad+2,pad+13);
+ g.fillStyle='#5d6065';g.font='9.5px SG,sans-serif';
+ var mx=fmt(max);g.fillText(mx,W-pad-g.measureText(mx).width,pad+11);
+ var t0=rows[0].t,t1=rows[n-1].t;
+ var f=function(ts){var d=new Date(ts);return('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};
+ g.fillText(f(t0),pad,H-2);
+ var mid=f(t0+(t1-t0)/2);g.fillText(mid,W/2-g.measureText(mid).width/2,H-2);
+ g.fillText(f(t1),W-pad-g.measureText(f(t1)).width,H-2)}
+
+function chartCard(title,rows,key,color,fmt,legend){
+ return'<div class="card"><h3>'+esc(title)+'</h3>'+
+ '<canvas class="chart" id="cv_'+key+'"></canvas>'+
+ '<div class="legend">'+legend+'</div></div>'}
+function drawAllCharts(){
+ var r=HIST.rows;
+ var cv=$('#cv_dl');if(cv)drawChart(cv,r,'dl','#e9b44c',function(v){return humanBps(v)});
+ var cv2=$('#cv_ul');if(cv2)drawChart(cv2,r,'ul','#5b9bd5',function(v){return humanBps(v)});
+ var cv3=$('#cv_sig');if(cv3)drawChart(cv3,r,'sig','#8fc98a',function(v){return Math.round(v)+'%'});
+ var cv4=$('#cv_mem');if(cv4)drawChart(cv4,r,'mem','#b48ce0',function(v){return human(v)});
+ var cv5=$('#cv_dev');if(cv5)drawChart(cv5,r,'dev','#e9b44c',function(v){return Math.round(v)+' perangkat'})}
+
 /* ===== shell aplikasi ===== */
 function render(){
  $('#view').innerHTML=tab==='home'?screenHome():tab==='wifi'?screenWifi():
   tab==='net'?screenNet():tab==='modem'?screenModem():tab==='dev'?screenDev():screenSys();
- bind()}
+ bind();drawAllCharts()}
 function buildTabs(){
  $('#tabs').innerHTML=TABS.map(function(t){
   return'<button class="tab'+(t[0]===tab?' on':'')+'" data-tab="'+t[0]+'">'+t[2]+t[1]+'</button>'}).join('');
@@ -544,11 +669,12 @@ function buildTabs(){
   $('#scrTitle').textContent=TITLES[tab];render();$('#view').scrollTop=0})})}
 function refresh2(){
  loadAll().then(function(){
+  histSample();devHistUpdate();
   setConn(!!cache.board);
   $('#scrSub').textContent=cache.board
    ?cache.board.hostname+' · '+((cache.board.release||{}).openwrt||'OpenWrt')
    :'perangkat tidak merespons';
-  render()})}
+  render();drawAllCharts()})}
 function setConn(ok){var c=$('#conn');c.className='chip '+(ok?'on':'off');
  c.querySelector('span').textContent=ok?'ONLINE':'OFFLINE'}
 buildTabs();
