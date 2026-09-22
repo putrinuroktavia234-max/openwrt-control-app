@@ -240,6 +240,11 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public void skip() {
+            runOnUiThread(() -> webView.loadUrl(routerHost + "/cgi-bin/luci"));
+        }
+
+        @JavascriptInterface
         public void back() {
             runOnUiThread(MainActivity.this::onBackPressed);
         }
@@ -257,12 +262,12 @@ public class MainActivity extends Activity {
     // ================= RPC core =================
 
     private volatile int lastStatus = 0;
-    private volatile String rpcPath = "/jsonrpc"; // bisa berubah ke /cgi-bin/luci/admin/ubus
+    private volatile String rpcPath = "/ubus"; // bisa berubah ke /jsonrpc atau /cgi-bin/luci/admin/ubus
     private volatile String webToken = "";
     private volatile String webCookie = "";
 
     private static final String[] RPC_CANDIDATES = {
-            "/jsonrpc", "/cgi-bin/luci/admin/ubus"
+            "/ubus", "/jsonrpc", "/cgi-bin/luci/admin/ubus"
     };
 
     private static javax.net.ssl.SSLSocketFactory trustAllFactory() {
@@ -283,12 +288,7 @@ public class MainActivity extends Activity {
 
     private String postRaw(String base, String path, String body) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(base + path).openConnection();
-        if (c instanceof javax.net.ssl.HttpsURLConnection) {
-            javax.net.ssl.HttpsURLConnection h = (javax.net.ssl.HttpsURLConnection) c;
-            javax.net.ssl.SSLSocketFactory f = trustAllFactory();
-            if (f != null) h.setSSLSocketFactory(f);
-            h.setHostnameVerifier((hostname, session) -> true);
-        }
+        tuneSsl(c);
         c.setRequestMethod("POST");
         c.setRequestProperty("Content-Type", "application/json");
         c.setRequestProperty("Origin", routerHost);
@@ -297,6 +297,9 @@ public class MainActivity extends Activity {
         c.setReadTimeout(8000);
         c.setInstanceFollowRedirects(true);
         c.setDoOutput(true);
+        // /admin/ubus memakai sesi cookie sysauth saat sid nol; /ubus mengabaikannya.
+        if (path != null && path.contains("/admin/ubus") && webCookie != null && !webCookie.isEmpty())
+            c.setRequestProperty("Cookie", webCookie);
         try (OutputStream os = c.getOutputStream()) {
             os.write(body.getBytes(StandardCharsets.UTF_8));
         }
@@ -316,7 +319,7 @@ public class MainActivity extends Activity {
 
     private String post(String body) {
         try {
-            String[] paths = {rpcPath, "/jsonrpc", "/cgi-bin/luci/admin/ubus"};
+            String[] paths = {rpcPath, "/ubus", "/jsonrpc", "/cgi-bin/luci/admin/ubus"};
             for (String p : paths) {
                 try {
                     String r = postRaw(routerHost, p, body);
@@ -367,9 +370,23 @@ public class MainActivity extends Activity {
             c.disconnect();
             if (code == 200) return "login http 200 (kemungkinan salah sandi)";
             // 3. Halaman admin -> sessionid
-            java.net.HttpURLConnection g2 = (java.net.HttpURLConnection) new URL(url).openConnection();
+            // Setelah POST sukses, LuCI memunculkan sessionid di URL redirect
+            // (?sessionid=xxx) atau di halaman tujuan (L.env.sessionid).
+            java.util.regex.Matcher mLoc = java.util.regex.Pattern
+                    .compile("[?&]sessionid=([0-9a-fA-F]{8,64})").matcher(bodyLoc == null ? "" : bodyLoc);
+            if (mLoc.find()) {
+                sid = mLoc.group(1);
+                webCookie = cookie;
+                rpcPath = "/cgi-bin/luci/admin/ubus";
+                sp.edit().putString(KEY_USER, user).putString(KEY_PASS, pass).apply();
+                return null;
+            }
+            String url2 = bodyLoc != null && !bodyLoc.isEmpty() && bodyLoc.startsWith("/")
+                    ? routerHost + bodyLoc : url;
+            java.net.HttpURLConnection g2 = (java.net.HttpURLConnection) new URL(url2).openConnection();
             tuneSsl(g2);
             if (!cookie.isEmpty()) g2.setRequestProperty("Cookie", cookie);
+            g2.setInstanceFollowRedirects(true);
             StringBuilder sb = new StringBuilder();
             try (BufferedReader r = new BufferedReader(new InputStreamReader(
                     g2.getResponseCode() >= 400 ? g2.getErrorStream() : g2.getInputStream(),
@@ -379,11 +396,15 @@ public class MainActivity extends Activity {
                 while ((line = r.readLine()) != null && n++ < 2000) sb.append(line).append('\n');
             }
             g2.disconnect();
+            // L.env.sessionid di-render header.ut sebagai "sessionid": "..." (atau
+            // 'sessionid': ...) setelah objek LuCI dibuat; cocokkan kata utuh.
             java.util.regex.Matcher m = java.util.regex.Pattern
-                    .compile("\"sessionid\"\\s*:\\s*\"([0-9a-fA-F]{8,64})\"")
+                    .compile("['\"]sessionid['\"]\\s*:\\s*['\"]([0-9a-fA-F]{8,64})['\"]")
                     .matcher(sb);
             if (!m.find()) {
-                if (sb.indexOf("Login") >= 0 || sb.indexOf("login") >= 0)
+                if (sb.indexOf("Authorization Required") >= 0
+                        || sb.indexOf("Invalid username") >= 0
+                        || sb.indexOf("luci_password") >= 0)
                     return "form login ditolak (cek sandi root)";
                 return "sessionid tidak ditemukan di halaman admin";
             }
@@ -472,9 +493,9 @@ public class MainActivity extends Activity {
                         JSONArray a = (JSONArray) res;
                         if (a.length() >= 2 && a.get(1) instanceof String) tok = a.getString(1);
                         else if (a.length() >= 2 && a.get(1) instanceof JSONObject)
-                            tok = a.getJSONObject(1).optString("token");
+                            tok = a.getJSONObject(1).optString("ubus_rpc_session");
                     } else if (res instanceof JSONObject)
-                        tok = ((JSONObject) res).optString("token");
+                        tok = ((JSONObject) res).optString("ubus_rpc_session");
                     if (tok != null && !tok.isEmpty() && !"null".equals(tok)) {
                         sid = tok;
                         rpcPath = p;

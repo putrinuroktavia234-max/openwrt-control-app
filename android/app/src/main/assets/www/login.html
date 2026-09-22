@@ -155,7 +155,7 @@ document.getElementById('f').addEventListener('submit',function(ev){ev.preventDe
  try{App.login(us.value.trim()||'root',pw.value)}
  catch(e){showErr('Jembatan aplikasi tidak aktif')}});
 document.getElementById('skip').addEventListener('click',function(ev){ev.preventDefault();
- try{App.skip()}catch(e){}});
+ try{App.skip()}catch(e){showErr('Jembatan aplikasi tidak aktif')}});
 document.getElementById('hostBtn').addEventListener('click',function(ev){ev.preventDefault();
  try{App.changeHost()}catch(e){}});
 </script>
