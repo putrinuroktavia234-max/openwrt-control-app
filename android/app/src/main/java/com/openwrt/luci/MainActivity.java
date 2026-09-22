@@ -152,10 +152,12 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void login(final String user, final String pass) {
             new Thread(() -> {
-                final String err = doLogin(user, pass);
+                String err = doLogin(user, pass);
+                if (err != null) err = webLogin(user, pass); // fallback ala browser
+                final String fe = err;
                 runOnUiThread(() -> {
-                    if (err == null) webView.loadUrl(APP_URL);
-                    else js("window.__loginFail&&__loginFail(" + JSONObject.quote(err) + ")");
+                    if (fe == null) webView.loadUrl(APP_URL);
+                    else js("window.__loginFail&&__loginFail(" + JSONObject.quote(fe) + ")");
                 });
             }).start();
         }
@@ -256,6 +258,8 @@ public class MainActivity extends Activity {
 
     private volatile int lastStatus = 0;
     private volatile String rpcPath = "/jsonrpc"; // bisa berubah ke /cgi-bin/luci/admin/ubus
+    private volatile String webToken = "";
+    private volatile String webCookie = "";
 
     private static final String[] RPC_CANDIDATES = {
             "/jsonrpc", "/cgi-bin/luci/admin/ubus"
@@ -328,6 +332,107 @@ public class MainActivity extends Activity {
         }
     }
     private volatile String lastErr = "";
+
+    /** Login ala browser: form sysauth + cookie + sessionid dari halaman admin. */
+    private String webLogin(String user, String pass) {
+        try {
+            String url = routerHost + "/cgi-bin/luci/admin";
+            // 1. GET awal utk cookie tamu
+            java.net.HttpURLConnection g = (java.net.HttpURLConnection) new URL(url).openConnection();
+            tuneSsl(g);
+            g.setInstanceFollowRedirects(false);
+            g.connect();
+            String cookie = grabCookies(g, "");
+            g.disconnect();
+            // 2. POST kredensial
+            java.net.HttpURLConnection c = (java.net.HttpURLConnection) new URL(url).openConnection();
+            tuneSsl(c);
+            c.setRequestMethod("POST");
+            c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            c.setRequestProperty("Origin", routerHost);
+            c.setRequestProperty("Referer", url);
+            if (!cookie.isEmpty()) c.setRequestProperty("Cookie", cookie);
+            c.setInstanceFollowRedirects(false);
+            c.setDoOutput(true);
+            String form = "username=" + java.net.URLEncoder.encode(user, "UTF-8")
+                    + "&password=" + java.net.URLEncoder.encode(pass, "UTF-8")
+                    + "&luci_username=" + java.net.URLEncoder.encode(user, "UTF-8")
+                    + "&luci_password=" + java.net.URLEncoder.encode(pass, "UTF-8");
+            try (OutputStream os = c.getOutputStream()) {
+                os.write(form.getBytes(StandardCharsets.UTF_8));
+            }
+            int code = c.getResponseCode();
+            cookie = grabCookies(c, cookie);
+            String bodyLoc = c.getHeaderField("Location");
+            c.disconnect();
+            if (code == 200) return "login http 200 (kemungkinan salah sandi)";
+            // 3. Halaman admin -> sessionid
+            java.net.HttpURLConnection g2 = (java.net.HttpURLConnection) new URL(url).openConnection();
+            tuneSsl(g2);
+            if (!cookie.isEmpty()) g2.setRequestProperty("Cookie", cookie);
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(
+                    g2.getResponseCode() >= 400 ? g2.getErrorStream() : g2.getInputStream(),
+                    StandardCharsets.UTF_8))) {
+                String line;
+                int n = 0;
+                while ((line = r.readLine()) != null && n++ < 2000) sb.append(line).append('\n');
+            }
+            g2.disconnect();
+            java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("\"sessionid\"\\s*:\\s*\"([0-9a-fA-F]{8,64})\"")
+                    .matcher(sb);
+            if (!m.find()) {
+                if (sb.indexOf("Login") >= 0 || sb.indexOf("login") >= 0)
+                    return "form login ditolak (cek sandi root)";
+                return "sessionid tidak ditemukan di halaman admin";
+            }
+            sid = m.group(1);
+            webCookie = cookie;
+            rpcPath = "/cgi-bin/luci/admin/ubus";
+            sp.edit().putString(KEY_USER, user).putString(KEY_PASS, pass).apply();
+            return null;
+        } catch (Exception e) {
+            return "web login: " + e.getMessage();
+        }
+    }
+
+    private void tuneSsl(java.net.HttpURLConnection c) {
+        if (c instanceof javax.net.ssl.HttpsURLConnection) {
+            javax.net.ssl.HttpsURLConnection h = (javax.net.ssl.HttpsURLConnection) c;
+            javax.net.ssl.SSLSocketFactory f = trustAllFactory();
+            if (f != null) h.setSSLSocketFactory(f);
+            h.setHostnameVerifier((hostname, session) -> true);
+        }
+    }
+
+    private String grabCookies(java.net.HttpURLConnection c, String have) {
+        try {
+            java.util.List<String> sc = c.getHeaderFields().get("Set-Cookie");
+            if (sc == null) return have;
+            java.util.LinkedHashMap<String, String> jar = new java.util.LinkedHashMap<>();
+            for (String part : have.split(";\\s*")) {
+                int eq = part.indexOf('=');
+                if (eq > 0) jar.put(part.substring(0, eq), part.substring(eq + 1));
+            }
+            for (String raw : sc) {
+                String kv = raw.split(";", 2)[0].trim();
+                int eq = kv.indexOf('=');
+                if (eq > 0) {
+                    String k = kv.substring(0, eq), v = kv.substring(eq + 1);
+                    if (v.isEmpty()) jar.remove(k); else jar.put(k, v);
+                }
+            }
+            StringBuilder out = new StringBuilder();
+            for (String k : jar.keySet()) {
+                if (out.length() > 0) out.append("; ");
+                out.append(k).append('=').append(jar.get(k));
+            }
+            return out.toString();
+        } catch (Exception e) {
+            return have;
+        }
+    }
 
     /** session.login rpcd -> simpan sid. Null = sukses. */
     private String doLogin(String user, String pass) {
