@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
         s.setBuiltInZoomControls(true);
         s.setDisplayZoomControls(false);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        webView.setBackgroundColor(0xFF0C0D10);
+        webView.setBackgroundColor(0xFF091018);
 
         CookieManager.getInstance().setAcceptCookie(true);
 

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenWrt Control — Kendalikan router dari satu aplikasi</title>
+<style>
+@font-face{font-family:'SG';src:url('fonts/sg-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'SG';src:url('fonts/sg-700.woff2') format('woff2');font-weight:700;font-display:swap}
+:root{
+  --ink:#091018; --ink2:#0B1626; --surf:#0E1A28; --raise:#132238;
+  --hair:rgba(120,170,255,.14); --hair2:rgba(120,170,255,.22);
+  --t1:#EAF2FF; --t2:#8FA8CC; --t3:#54718F;
+  --blue:#2D8CFF; --blue2:#1E6FE0; --cyan:#3ECF8E;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--t1);font-family:'SG',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+
+/* glow latar belakang */
+body::before{content:"";position:fixed;inset:-20% -10% auto -10%;height:90vh;pointer-events:none;
+  background:
+    radial-gradient(46% 55% at 22% 8%, rgba(45,140,255,.20), transparent 65%),
+    radial-gradient(44% 50% at 80% 4%, rgba(124,108,255,.14), transparent 62%)}
+
+/* ===== header ===== */
+header{position:sticky;top:0;z-index:50;background:rgba(9,16,24,.72);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--hair)}
+nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:15.5px;letter-spacing:-.01em}
+.brand .mk{width:34px;height:34px;border-radius:10px;background:linear-gradient(160deg,var(--raise),var(--ink2));
+  border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center}
+.brand .mk svg{width:19px;height:19px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand small{display:block;font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.09em;text-transform:uppercase}
+nav .links{display:flex;align-items:center;gap:26px}
+nav .links a{color:var(--t2);text-decoration:none;font-size:13.5px;font-weight:500}
+nav .links a:hover{color:var(--t1)}
+.gh{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:99px;
+  border:1px solid var(--hair2);color:var(--t1);text-decoration:none;font-size:13px;font-weight:600;
+  background:rgba(45,140,255,.08);transition:.18s}
+.gh:hover{background:rgba(45,140,255,.16);border-color:rgba(45,140,255,.5)}
+.gh svg{width:15px;height:15px;fill:currentColor}
+@media(max-width:860px){nav .links{display:none}}
+
+/* ===== hero ===== */
+.hero{padding:96px 0 40px;display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:center}
+@media(max-width:980px){.hero{grid-template-columns:1fr;gap:44px;padding:64px 0 24px}}
+.pill{display:inline-flex;align-items:center;gap:9px;padding:7px 14px;border-radius:99px;
+  border:1px solid var(--hair2);background:rgba(45,140,255,.07);
+  font-size:11.5px;font-weight:600;color:var(--t2);letter-spacing:.05em;text-transform:uppercase}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(62,207,142,.8)}
+.hero h1{font-size:56px;font-weight:700;letter-spacing:-.035em;line-height:1.04;margin:22px 0 0}
+@media(max-width:980px){.hero h1{font-size:42px}}
+.hero h1 em{font-style:normal;
+  background:linear-gradient(100deg,#6FB4FF,#2D8CFF 55%,#7C6CFF);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lede{font-size:16.5px;font-weight:500;color:var(--t2);line-height:1.62;max-width:50ch;margin-top:20px}
+.cta{display:flex;gap:13px;margin-top:32px;flex-wrap:wrap}
+.btn-p{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:12px;
+  background:linear-gradient(180deg,#3D9CFF,var(--blue2));color:#fff;text-decoration:none;
+  font-size:14.5px;font-weight:700;box-shadow:0 8px 22px rgba(45,140,255,.34);transition:.18s}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(45,140,255,.44)}
+.btn-p svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-s{display:inline-flex;align-items:center;gap:9px;padding:14px 22px;border-radius:12px;
+  border:1px solid var(--hair2);color:var(--t1);text-decoration:none;font-size:14.5px;font-weight:600;
+  background:var(--surf);transition:.18s}
+.btn-s:hover{border-color:rgba(45,140,255,.5);background:var(--raise)}
+.stats{display:flex;gap:34px;margin-top:44px;flex-wrap:wrap}
+.stats div b{display:block;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stats div span{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.08em;text-transform:uppercase}
+
+/* ===== phone mockups ===== */
+.phones{position:relative;display:flex;justify-content:center;align-items:center;min-height:560px}
+.phone{position:relative;width:268px;border-radius:38px;padding:9px;
+  background:linear-gradient(170deg,#1B3050,#0A1420);border:1px solid var(--hair2);
+  box-shadow:0 40px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.10)}
+.phone .scr{border-radius:30px;overflow:hidden;background:var(--ink);position:relative}
+.phone .notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:86px;height:22px;
+  border-radius:99px;background:#050C14;border:1px solid var(--hair);z-index:3}
+.phone .stbar{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 4px;
+  font-size:10.5px;font-weight:700;color:var(--t1)}
+.phone .stbar .r{display:flex;gap:5px;align-items:center}
+.phone .stbar svg{width:13px;height:13px;stroke:var(--t1);fill:none;stroke-width:1.9;stroke-linecap:round}
+.ph-mid{z-index:2;transform:scale(1.06)}
+.ph-l,.ph-r{position:absolute;top:50%;transform:translateY(-50%) scale(.9);opacity:.72;z-index:1}
+.ph-l{right:56%}
+.ph-r{left:56%}
+@media(max-width:980px){.ph-l,.ph-r{display:none}}
+
+/* isi phone: dashboard ringkasan */
+.p-head{padding:14px 16px 8px}
+.p-head h2{font-size:19px;font-weight:700;letter-spacing:-.02em}
+.p-head p{font-size:10.5px;font-weight:500;color:var(--t3);margin-top:2px}
+.p-chip{position:absolute;top:16px;right:14px;display:flex;align-items:center;gap:5px;
+  font-size:9px;font-weight:700;color:var(--cyan);padding:4px 9px;border-radius:99px;
+  border:1px solid rgba(62,207,142,.4);background:rgba(62,207,142,.1)}
+.p-chip i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 7px rgba(62,207,142,.9)}
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:6px 14px 0}
+.p-card{background:var(--surf);border:1px solid var(--hair);border-radius:13px;padding:11px 12px}
+.p-card b{display:block;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.p-card span{font-size:8.5px;font-weight:600;color:var(--t3);letter-spacing:.07em;text-transform:uppercase}
+.p-bar{height:4px;border-radius:2px;background:rgba(120,170,255,.15);margin-top:9px;overflow:hidden}
+.p-bar i{display:block;height:100%;width:62%;border-radius:2px;
+  background:linear-gradient(90deg,var(--blue),#7C6CFF)}
+.p-list{padding:12px 14px 70px}
+.p-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--hair)}
+.p-row:last-child{border-bottom:none}
+.p-row .av{width:28px;height:28px;border-radius:8px;background:var(--raise);border:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--t2);flex:0 0 auto}
+.p-row .nm{font-size:11.5px;font-weight:700}
+.p-row .mc{font-size:9px;color:var(--t3);font-variant-numeric:tabular-nums}
+.p-row .ip{margin-left:auto;font-size:10px;font-weight:600;color:var(--t2);font-variant-numeric:tabular-nums}
+.p-tabs{position:absolute;bottom:0;left:0;right:0;display:flex;
+  background:rgba(9,16,24,.95);backdrop-filter:blur(14px);border-top:1px solid var(--hair);
+  padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+.p-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;color:var(--t3);font-size:8px;font-weight:600;cursor:pointer}
+.p-tab svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.p-tab.on{color:var(--blue);text-shadow:0 0 12px rgba(45,140,255,.8)}
+
+/* ===== fitur ===== */
+section{padding:84px 0}
+.sec-h{text-align:center;max-width:640px;margin:0 auto 48px}
+.sec-h .k{font-size:11.5px;font-weight:700;color:var(--blue);letter-spacing:.14em;text-transform:uppercase}
+.sec-h h2{font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-top:12px}
+.sec-h p{font-size:15.5px;font-weight:500;color:var(--t2);line-height:1.62;margin-top:14px}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.feat{grid-template-columns:1fr}}
+.fcard{background:var(--surf);border:1px solid var(--hair);border-radius:18px;padding:24px;
+  transition:.2s;position:relative;overflow:hidden}
+.fcard:hover{border-color:rgba(45,140,255,.42);transform:translateY(-3px);
+  box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.fcard .ic{width:44px;height:44px;border-radius:13px;background:rgba(45,140,255,.12);
+  border:1px solid rgba(45,140,255,.28);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.fcard .ic svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.fcard h3{font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.fcard p{font-size:13.5px;font-weight:500;color:var(--t2);line-height:1.62;margin-top:8px}
+
+/* ===== cta bawah ===== */
+.cta-band{padding:84px 0 100px}
+.band{background:linear-gradient(140deg,rgba(45,140,255,.14),rgba(124,108,255,.10));
+  border:1px solid var(--hair2);border-radius:26px;padding:56px 44px;text-align:center;position:relative;overflow:hidden}
+.band h2{font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.12}
+.band p{font-size:15.5px;font-weight:500;color:var(--t2);margin-top:14px;line-height:1.62}
+.band .row{display:flex;gap:13px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+
+/* ===== footer ===== */
+footer{border-top:1px solid var(--hair);padding:30px 0}
+footer .f{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:12.5px;font-weight:500;color:var(--t3)}
+footer a{color:var(--t3);text-decoration:none}
+footer a:hover{color:var(--t2)}
+</style></head>
+<body>
+
+<header>
+  <div class="wrap"><nav>
+    <div class="brand">
+      <div class="mk"><svg viewBox="0 0 24 24"><path d="M4 9a11.5 11.5 0 0 1 16 0M7.2 12.4a7 7 0 0 1 9.6 0M10.4 15.6a2.6 2.6 0 0 1 3.2 0"/><circle cx="12" cy="18.6" r=".9" fill="var(--blue)" stroke="none"/></svg></div>
+      <div>OpenWrt Control<small>Router management</small></div>
+    </div>
+    <div class="links">
+      <a href="#fitur">Fitur</a>
+      <a href="#unduh">Unduh</a>
+    </div>
+    <a class="gh" href="https://github.com/putrinuroktavia234-max/openwrt-control-app" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.3-1.8-1.3-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1a2.7 2.7 0 0 1 .8-1.7c-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.3 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z"/></svg>
+      GitHub
+    </a>
+  </nav></div>
+</header>
+
+<div class="wrap"><section class="hero" id="unduh">
+  <div>
+    <span class="pill"><i></i>ImmortalWrt 24.10 · B860H</span>
+    <h1>Kendalikan router <em>OpenWrt</em> Anda dari satu aplikasi.</h1>
+    <p class="lede">Bukan tempelan browser. Dashboard native yang bicara langsung ke router via RPC ubus — pantau perangkat, ganti SSID &amp; sandi WiFi, kelola modem tethering, dan reboot, semuanya dari satu layar.</p>
+    <div class="cta">
+      <a class="btn-p" href="https://github.com/putrinuroktavia234-max/openwrt-control-app/releases/latest" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>Unduh APK
+      </a>
+      <a class="btn-s" href="#fitur">Lihat fitur</a>
+    </div>
+    <div class="stats">
+      <div><b>6</b><span>Tab dashboard</span></div>
+      <div><b>0</b><span>Dependensi pihak ketiga</span></div>
+      <div><b>6 dtk</b><span>Auto-refresh</span></div>
+      <div><b>90 KB</b><span>Ukuran APK</span></div>
+    </div>
+  </div>
+
+  <div class="phones">
+    <div class="phone ph-l"><div class="scr">
+      <div class="stbar"><span>09:41</span><span class="r">
+        <svg viewBox="0 0 24 24"><path d="M2 12h3M8 9h3M14 6h3"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M21 11v2"/></svg></span></div>
+      <div class="p-head"><h2>WiFi</h2><p>2 radio aktif</p></div>
+      <div class="p-grid" style="grid-template-columns:1fr">
+        <div class="p-card"><b>KRISTAL-24G</b><span>radio0 · ch 6 · 8 perangkat</span>
+          <div class="p-bar"><i style="width:78%"></i></div></div>
+        <div class="p-card" style="margin-top:9px"><b>KRISTAL-5G</b><span>radio1 · ch 44 · 3 perangkat</span>
+          <div class="p-bar"><i style="width:34%"></i></div></div>
+      </div>
+    </div></div>
+
+    <div class="phone ph-mid">
+      <div class="notch"></div>
+      <div class="scr">
+        <div class="stbar"><span>09:41</span><span class="r">
+          <svg viewBox="0 0 24 24"><path d="M2 12h3M8 9h3M14 6h3"/></svg>
+          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M21 11v2"/></svg></span></div>
+        <div class="p-head"><h2>Router</h2><p>ImmortalWrt 24.10 · 1h 23j</p></div>
+        <div class="p-chip"><i></i>ONLINE</div>
+        <div class="p-grid">
+          <div class="p-card"><b>11</b><span>Perangkat</span><div class="p-bar"><i style="width:62%"></i></div></div>
+          <div class="p-card"><b>2/2</b><span>Radio aktif</span><div class="p-bar"><i style="width:100%"></i></div></div>
+          <div class="p-card"><b>10.42.180.84</b><span>IP internet</span><div class="p-bar"><i style="width:46%"></i></div></div>
+          <div class="p-card"><b>412 MB</b><span>Memori terpakai</span><div class="p-bar"><i style="width:44%"></i></div></div>
+        </div>
+        <div class="p-list">
+          <div class="p-row"><div class="av">HP</div><div><div class="nm">HP-Ali</div><div class="mc">AA:BB:CC:11:22:33</div></div><div class="ip">192.168.1.50</div></div>
+          <div class="p-row"><div class="av">TV</div><div><div class="nm">TV-Ruang</div><div class="mc">AA:BB:CC:44:55:66</div></div><div class="ip">192.168.1.63</div></div>
+          <div class="p-row"><div class="av">LP</div><div><div class="nm">Laptop-Kantor</div><div class="mc">AA:BB:CC:77:88:99</div></div><div class="ip">192.168.1.71</div></div>
+        </div>
+        <div class="p-tabs">
+          <button class="p-tab on"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5M10 21v-6h4v6"/></svg>Beranda</button>
+          <button class="p-tab"><svg viewBox="0 0 24 24"><path d="M4 9a11.5 11.5 0 0 1 16 0M7.2 12.4a7 7 0 0 1 9.6 0M10.4 15.6a2.6 2.6 0 0 1 3.2 0"/><circle cx="12" cy="18.6" r=".8"/></svg>WiFi</button>
+          <button class="p-tab"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><circle cx="7" cy="7.5" r=".8"/><circle cx="7" cy="16.5" r=".8"/></svg>Jaringan</button>
+          <button class="p-tab"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg>Perangkat</button>
+          <button class="p-tab"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"/></svg>Sistem</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="phone ph-r"><div class="scr">
+      <div class="stbar"><span>09:41</span><span class="r">
+        <svg viewBox="0 0 24 24"><path d="M2 12h3M8 9h3M14 6h3"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M21 11v2"/></svg></span></div>
+      <div class="p-head"><h2>Perangkat</h2><p>11 klien · 2 radio</p></div>
+      <div class="p-list" style="padding-bottom:12px">
+        <div class="p-row"><div class="av">HP</div><div><div class="nm">HP-Ali</div><div class="mc">sinyal -42 dBm</div></div><div class="ip">192.168.1.50</div></div>
+        <div class="p-row"><div class="av">TV</div><div><div class="nm">TV-Ruang</div><div class="mc">sinyal -58 dBm</div></div><div class="ip">192.168.1.63</div></div>
+        <div class="p-row"><div class="av">LP</div><div><div class="nm">Laptop-Kantor</div><div class="mc">sinyal -67 dBm</div></div><div class="ip">192.168.1.71</div></div>
+        <div class="p-row"><div class="av">ES</div><div><div class="nm">ESP-SmartLamp</div><div class="mc">sinyal -71 dBm</div></div><div class="ip">192.168.1.88</div></div>
+      </div>
+    </div></div>
+  </div>
+</section></div>
+
+<div class="wrap"><section id="fitur">
+  <div class="sec-h">
+    <div class="k">Fitur</div>
+    <h2>Semua yang LuCI tawarkan, tanpa membuka browser.</h2>
+    <p>Setiap fitur berjalan langsung di atas RPC ubus router — bukan screenshot, bukan iframe, dan bukan webview LuCI mentah.</p>
+  </div>
+  <div class="feat">
+    <div class="fcard"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5M10 21v-6h4v6"/></svg></div>
+      <h3>Beranda ringkasan</h3><p>Uptime, jumlah perangkat, radio aktif, IP internet, beban CPU, pemakaian memori, dan grafik histori real-time yang disimpan di HP.</p></div>
+    <div class="fcard"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 9a11.5 11.5 0 0 1 16 0M7.2 12.4a7 7 0 0 1 9.6 0M10.4 15.6a2.6 2.6 0 0 1 3.2 0"/><circle cx="12" cy="18.6" r=".8"/></svg></div>
+      <h3>WiFi lengkap</h3><p>Nyalakan/matikan radio, ganti nama (SSID) dan kata sandi langsung dari aplikasi, mode klien/station untuk tethering, atur kanal &amp; lebar kanal.</p></div>
+    <div class="fcard"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><circle cx="7" cy="7.5" r=".8"/><circle cx="7" cy="16.5" r=".8"/></svg></div>
+      <h3>Jaringan &amp; modem</h3><p>Semua antarmuka dengan IP, gateway, DNS, dan trafik. Deteksi modem HP otomatis, lengkap dengan grafik kualitas sinyal.</p></div>
+    <div class="fcard"><div class="ic"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M10.5 18.5h3"/></svg></div>
+      <h3>Kelola perangkat</h3><p>Daftar klien dengan nama, MAC, dan IP. Ketuk untuk menendang perangkat dari WiFi. Riwayat perangkat yang pernah terhubung ikut terlacak.</p></div>
+    <div class="fcard"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.5"/><path d="M8.6 12.4a5 5 0 0 1 6.8 0M6.4 10a8.4 8.4 0 0 1 11.2 0"/><circle cx="12" cy="15.4" r="1" fill="currentColor" stroke="none"/></svg></div>
+      <h3>Panel OpenWrt</h3><p>Modem-manager: merk/model, sinyal, IMSI/IMEI, operator, APN. Pintasan OpenClash, Tailscale, Modemband, 3GInfo, AndroModem, dan panel LuCI lengkap.</p></div>
+    <div class="fcard"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.4 5.4l1.9 1.9M16.7 16.7l1.9 1.9M18.6 5.4l-1.9 1.9M7.3 16.7l-1.9 1.9"/></svg></div>
+      <h3>Sistem &amp; layanan</h3><p>Info perangkat, ping test, saklar layanan init.d (openclash, tailscale, upnpd), reboot router, dan pengaturan lanjutan LuCI.</p></div>
+  </div>
+</section></div>
+
+<div class="wrap"><div class="cta-band">
+  <div class="band">
+    <h2>Siap mengendalikan router dari satu aplikasi?</h2>
+    <p>Gratis, tanpa iklan, tanpa akun. Tinggal pasang APK, ketik sandi root router Anda sekali — selesai.</p>
+    <div class="row">
+      <a class="btn-p" href="https://github.com/putrinuroktavia234-max/openwrt-control-app/releases/latest" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>Unduh APK</a>
+      <a class="btn-s" href="https://github.com/putrinuroktavia234-max/openwrt-control-app" target="_blank" rel="noopener">Lihat source code</a>
+    </div>
+  </div>
+</div></div>
+
+<footer><div class="wrap"><div class="f">
+  <span>OpenWrt Control · dibuat untuk ImmortalWrt 24.10 (B860H)</span>
+  <span><a href="https://github.com/putrinuroktavia234-max/openwrt-control-app" target="_blank" rel="noopener">github.com/putrinuroktavia234-max/openwrt-control-app</a></span>
+</div></div></footer>
+
+</body></html>

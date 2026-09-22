@@ -7,12 +7,13 @@
 @font-face{font-family:'SG';src:url('fonts/sg-500.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'SG';src:url('fonts/sg-700.woff2') format('woff2');font-weight:700;font-display:swap}
 :root{
- --ink:#0c0d10;--surf:#17181d;--raise:#1e2026;--hair:rgba(255,255,255,.075);
- --t1:#f2f1ee;--t2:#9b9d9f;--t3:#5d6065;
- --amber:#e9b44c;--ok:#8fc98a;--bad:#e0807f;--r:12px;--r-lg:18px}
+ --ink:#091018;--surf:#0E1A28;--raise:#132238;--hair:rgba(120,170,255,.12);
+ --t1:#EAF2FF;--t2:#8FA8CC;--t3:#54718F;
+ --amber:#2D8CFF;--ok:#3ECF8E;--bad:#FF5F6D;--r:12px;--r-lg:18px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{background:var(--ink);color:var(--t1);font-family:'SG',system-ui,sans-serif;
+body{background:radial-gradient(120% 60% at 50% -10%, rgba(45,140,255,.14), transparent 60%),var(--ink);
+ color:var(--t1);font-family:'SG',system-ui,sans-serif;
  overflow:hidden;-webkit-font-smoothing:antialiased}
 .app{max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column}
 .top{flex:0 0 auto;padding:calc(16px + env(safe-area-inset-top)) 22px 10px;
@@ -24,7 +25,7 @@ body{background:var(--ink);color:var(--t1);font-family:'SG',system-ui,sans-serif
  letter-spacing:.05em;padding:7px 11px;border:1px solid var(--hair);border-radius:99px;
  background:var(--surf);white-space:nowrap}
 .chip i{width:7px;height:7px;border-radius:50%;background:var(--t3)}
-.chip.on i{background:var(--ok);box-shadow:0 0 8px rgba(143,201,138,.6)}
+.chip.on i{background:var(--ok);box-shadow:0 0 8px rgba(62,207,142,.6)}
 .chip.on span{color:var(--t2)}
 .chip.off i{background:var(--bad)}
 .view{flex:1;overflow-y:auto;padding:4px 22px calc(100px + env(safe-area-inset-bottom));scrollbar-width:none}
@@ -51,9 +52,9 @@ body{background:var(--ink);color:var(--t1);font-family:'SG',system-ui,sans-serif
 .ifc:last-child{margin-bottom:2px}
 .ifc .nm{font-size:14px;font-weight:700}
 .tag{display:inline-block;font-size:9px;font-weight:500;letter-spacing:.05em;color:var(--amber);
- border:1px solid rgba(233,180,76,.35);border-radius:99px;padding:2.5px 8px;margin-left:7px;vertical-align:2px}
-.tag.g{color:var(--ok);border-color:rgba(143,201,138,.35)}
-.tag.r{color:var(--bad);border-color:rgba(224,128,127,.4)}
+ border:1px solid rgba(45,140,255,.35);border-radius:99px;padding:2.5px 8px;margin-left:7px;vertical-align:2px}
+.tag.g{color:var(--ok);border-color:rgba(62,207,142,.35)}
+.tag.r{color:var(--bad);border-color:rgba(255,95,109,.4)}
 .dev{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--hair);cursor:pointer}
 .dev:last-child{border-bottom:none}
 .dev .av{width:36px;height:36px;border-radius:10px;background:var(--raise);border:1px solid var(--hair);
@@ -68,20 +69,20 @@ canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);backgr
 .rng{display:flex;gap:6px;margin-bottom:10px}
 .rng button{background:var(--raise);border:1px solid var(--hair);color:var(--t3);
  font:500 11px 'SG',sans-serif;border-radius:99px;padding:6px 14px;cursor:pointer}
-.rng button.on{color:var(--amber);border-color:rgba(233,180,76,.5);background:rgba(233,180,76,.08)}
+.rng button.on{color:var(--amber);border-color:rgba(45,140,255,.5);background:rgba(45,140,255,.1)}
 .dev .st{font-size:10px;color:var(--t3);margin-top:2px}
 .fld{margin-bottom:12px}
 .fld label{display:block;font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--t3);
  text-transform:uppercase;margin-bottom:7px}
 .fld .in{display:flex;align-items:center;background:var(--raise);border:1px solid transparent;
  border-radius:var(--r);height:48px;transition:border-color .18s}
-.fld .in:focus-within{border-color:rgba(233,180,76,.55)}
+.fld .in:focus-within{border-color:rgba(45,140,255,.6);box-shadow:0 0 0 3px rgba(45,140,255,.12)}
 .fld input{flex:1;background:none;border:none;outline:none;color:var(--t1);
  font:700 14px/1 'SG',sans-serif;padding:0 14px;min-width:0}
 .fld input::placeholder{color:var(--t3);font-weight:500}
 .btn{width:100%;height:48px;border:none;border-radius:var(--r);cursor:pointer;
- background:linear-gradient(180deg,var(--amber),#d49f33);color:#191510;
- font:700 14px 'SG',sans-serif;margin-top:4px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+ background:linear-gradient(180deg,#3D9CFF,#1E6FE0);color:#fff;
+ font:700 14px 'SG',sans-serif;margin-top:4px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px rgba(45,140,255,.3);
  transition:transform .08s;font-family:'SG',sans-serif}
 .btn:active{transform:scale(.985)}
 .btn.ghost{background:var(--raise);color:var(--t1);border:1px solid var(--hair);box-shadow:none;font-weight:500}
@@ -95,7 +96,7 @@ canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);backgr
  border:none;cursor:pointer;transition:background .2s;flex:0 0 auto}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
  background:var(--t2);transition:transform .22s cubic-bezier(.34,1.3,.64,1),background .2s}
-.toggle.on{background:rgba(233,180,76,.35)}
+.toggle.on{background:rgba(45,140,255,.35)}
 .toggle.on::after{transform:translateX(18px);background:var(--amber)}
 .skel{background:linear-gradient(90deg,var(--surf),#1d1f26,var(--surf));background-size:400% 100%;
  animation:sk 1.3s infinite;border-radius:var(--r-lg);height:92px;margin-bottom:12px}
@@ -104,18 +105,18 @@ pre.out{background:var(--raise);border:1px solid var(--hair);border-radius:var(-
  font:500 10.5px/1.55 ui-monospace,monospace;color:var(--t2);margin-top:10px;
  white-space:pre-wrap;word-break:break-all}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(14px);
- background:#26282f;border:1px solid var(--hair);color:var(--t1);font-size:12.5px;font-weight:500;
+ background:#16314F;border:1px solid rgba(120,170,255,.25);color:var(--t1);font-size:12.5px;font-weight:500;
  padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:9;pointer-events:none;max-width:88%;
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
- background:rgba(15,16,19,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+ background:rgba(9,16,24,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
  border-top:1px solid var(--hair);display:flex;padding:6px 4px calc(8px + env(safe-area-inset-bottom))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;
  background:none;border:none;color:var(--t3);font:500 9.5px 'SG',sans-serif;cursor:pointer}
 .tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 svg.owmi{width:21px;height:21px;display:block}
-.tab.on{color:var(--amber)}
+.tab.on{color:var(--amber);text-shadow:0 0 14px rgba(45,140,255,.7)}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}.bar i,.toggle{transition:none}}
 </style></head><body>
 <div class="app">
@@ -256,10 +257,10 @@ function screenHome(){
  'Memori '+(b?human(used)+' / '+human(b.memory.total):'')+'</div>'+
  '<div class="bar"><i style="width:'+(b?pct(used,b.memory.total):0)+'%"></i></div>'+
  rows([['Beban CPU (1/5/15 mnt)',cache.load||'—'],['Internet via',wan?wan.interface+' · '+(cache.st[wan.interface]['l3_device']||''):'—']])+'</div>'+
- chartCard('Pemakaian memori',null,'mem','#b48ce0',null,
- '<span><i style="background:#b48ce0"></i>Sekarang '+(b?human(used):'—')+'</span>')+
- chartCard('Jumlah perangkat terhubung',null,'dev','#e9b44c',null,
- '<span><i style="background:#e9b44c"></i>'+clients+' perangkat · riwayat tersimpan otomatis di HP</span>');
+ chartCard('Pemakaian memori',null,'mem','#7C6CFF',null,
+ '<span><i style="background:#7C6CFF"></i>Sekarang '+(b?human(used):'—')+'</span>')+
+ chartCard('Jumlah perangkat terhubung',null,'dev','#2D8CFF',null,
+ '<span><i style="background:#2D8CFF"></i>'+clients+' perangkat · riwayat tersimpan otomatis di HP</span>');
  if(w)for(var k in w){var r=w[k];if(!r||!r.current)continue;var c=r.current;
   h+='<div class="card"><h3>'+esc(k)+' · '+(r.up?'aktif':'mati')+'</h3>'+rows([
    ['Nama',c.ssid],['Klien',(r.associated||[]).length+' perangkat'],
@@ -332,19 +333,19 @@ function screenNet(){
   Object.keys(cache.dev).filter(function(d){return d!=='lo'}).slice(0,8).map(function(d){
    var st=(cache.dev[d]||{}).stats||{};
    return'<div class="row"><span class="k">'+esc(d)+'</span><span class="v">↓'+human(st.rx_bytes)+' ↑'+human(st.tx_bytes)+'</span></div>'}).join('')+'</div>'}
- h+=chartCard('Kecepatan internet — turun',null,'dl','#e9b44c',null,
-   '<span><i style="background:#e9b44c"></i>Unduh sekarang '+humanBps((HIST.rows[HIST.rows.length-1]||{dl:0}).dl)+'</span>'+
+ h+=chartCard('Kecepatan internet — turun',null,'dl','#2D8CFF',null,
+   '<span><i style="background:#2D8CFF"></i>Unduh sekarang '+humanBps((HIST.rows[HIST.rows.length-1]||{dl:0}).dl)+'</span>'+
    '<span style="margin-left:auto">'+HIST.rows.length+' sampel · '+Math.round(HIST.rows.length*8/60)+' mnt</span>')+
-  chartCard('Kecepatan internet — naik',null,'ul','#5b9bd5',null,
-   '<span><i style="background:#5b9bd5"></i>Unggah sekarang '+humanBps((HIST.rows[HIST.rows.length-1]||{ul:0}).ul)+'</span>');
+  chartCard('Kecepatan internet — naik',null,'ul','#2D8CFF',null,
+   '<span><i style="background:#2D8CFF"></i>Unggah sekarang '+humanBps((HIST.rows[HIST.rows.length-1]||{ul:0}).ul)+'</span>');
  return h}
 
 function screenDev(){
  var ls=cache.leases;
  if(ls===null)return skel(3);
  var h='';
- h+=chartCard('Riwayat perangkat terhubung',null,'dev','#e9b44c',null,
- '<span><i style="background:#e9b44c"></i>Grafik jumlah klien tiap 8 detik, tersimpan sampai '+(HIST.max*8/3600).toFixed(0)+' jam</span>');
+ h+=chartCard('Riwayat perangkat terhubung',null,'dev','#2D8CFF',null,
+ '<span><i style="background:#2D8CFF"></i>Grafik jumlah klien tiap 8 detik, tersimpan sampai '+(HIST.max*8/3600).toFixed(0)+' jam</span>');
  if(ls.length){h+='<div class="card"><h3>Sedang terhubung · '+ls.length+'</h3>'+ls.map(function(x,i){
   var nm=x.hostname||x.mac.split(':').slice(-3).join('-');
   return'<div class="dev" data-kick="'+i+'"><div class="av">'+esc(nm.slice(0,2).toUpperCase())+'</div>'+
@@ -383,8 +384,8 @@ function screenModem(){
     ['Operator',(kv['3gpp.operator-code']||'')+(kv['3gpp.operator']?' · '+esc(kv['3gpp.operator']):'')],
     ['Access point',esc(kv['3gpp.apn']||'—')]])+
    '<button class="btn ghost" data-act="rescan">Pindai ulang sinyal & status</button></div>'+
-   chartCard('Kualitas sinyal modem',null,'sig','#8fc98a',null,
-   '<span><i style="background:#8fc98a"></i>Sekarang '+(cache.mm&&cache.mm.kv&&cache.mm.kv['network.quality']!=null?cache.mm.kv['network.quality']+'%':'—')+'</span>');
+   chartCard('Kualitas sinyal modem',null,'sig','#3ECF8E',null,
+   '<span><i style="background:#3ECF8E"></i>Sekarang '+(cache.mm&&cache.mm.kv&&cache.mm.kv['network.quality']!=null?cache.mm.kv['network.quality']+'%':'—')+'</span>');
  }
  h+='<div class="card"><h3>Koneksi internet aktif</h3>'+rows([
   ['Antarmuka',wan?wan.interface:'—'],
@@ -648,11 +649,11 @@ function chartCard(title,rows,key,color,fmt,legend){
  '<div class="legend">'+legend+'</div></div>'}
 function drawAllCharts(){
  var r=HIST.rows;
- var cv=$('#cv_dl');if(cv)drawChart(cv,r,'dl','#e9b44c',function(v){return humanBps(v)});
- var cv2=$('#cv_ul');if(cv2)drawChart(cv2,r,'ul','#5b9bd5',function(v){return humanBps(v)});
- var cv3=$('#cv_sig');if(cv3)drawChart(cv3,r,'sig','#8fc98a',function(v){return Math.round(v)+'%'});
- var cv4=$('#cv_mem');if(cv4)drawChart(cv4,r,'mem','#b48ce0',function(v){return human(v)});
- var cv5=$('#cv_dev');if(cv5)drawChart(cv5,r,'dev','#e9b44c',function(v){return Math.round(v)+' perangkat'})}
+ var cv=$('#cv_dl');if(cv)drawChart(cv,r,'dl','#2D8CFF',function(v){return humanBps(v)});
+ var cv2=$('#cv_ul');if(cv2)drawChart(cv2,r,'ul','#2D8CFF',function(v){return humanBps(v)});
+ var cv3=$('#cv_sig');if(cv3)drawChart(cv3,r,'sig','#3ECF8E',function(v){return Math.round(v)+'%'});
+ var cv4=$('#cv_mem');if(cv4)drawChart(cv4,r,'mem','#7C6CFF',function(v){return human(v)});
+ var cv5=$('#cv_dev');if(cv5)drawChart(cv5,r,'dev','#2D8CFF',function(v){return Math.round(v)+' perangkat'})}
 
 /* ===== shell aplikasi ===== */
 function render(){
