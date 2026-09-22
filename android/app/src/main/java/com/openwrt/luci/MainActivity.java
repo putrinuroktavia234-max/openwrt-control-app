@@ -254,26 +254,60 @@ public class MainActivity extends Activity {
 
     // ================= RPC core =================
 
+    private volatile int lastStatus = 0;
+
+    private static javax.net.ssl.SSLSocketFactory trustAllFactory() {
+        try {
+            javax.net.ssl.SSLContext ctx = javax.net.ssl.SSLContext.getInstance("TLS");
+            ctx.init(null, new javax.net.ssl.TrustManager[]{new javax.net.ssl.X509TrustManager() {
+                public void checkClientTrusted(java.security.cert.X509Certificate[] c, String a) {}
+                public void checkServerTrusted(java.security.cert.X509Certificate[] c, String a) {}
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return new java.security.cert.X509Certificate[0];
+                }
+            }}, new java.security.SecureRandom());
+            return ctx.getSocketFactory();
+        } catch (Exception e) {
+            return javax.net.ssl.SSLSocketFactory.getDefault();
+        }
+    }
+
+    private String postRaw(String base, String body) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(base + "/jsonrpc").openConnection();
+        if (c instanceof javax.net.ssl.HttpsURLConnection) {
+            javax.net.ssl.HttpsURLConnection h = (javax.net.ssl.HttpsURLConnection) c;
+            javax.net.ssl.SSLSocketFactory f = trustAllFactory();
+            if (f != null) h.setSSLSocketFactory(f);
+            h.setHostnameVerifier((hostname, session) -> true);
+        }
+        c.setRequestMethod("POST");
+        c.setRequestProperty("Content-Type", "application/json");
+        c.setRequestProperty("Origin", routerHost);
+        c.setRequestProperty("Referer", routerHost + "/");
+        c.setConnectTimeout(4000);
+        c.setReadTimeout(8000);
+        c.setInstanceFollowRedirects(true);
+        c.setDoOutput(true);
+        try (OutputStream os = c.getOutputStream()) {
+            os.write(body.getBytes(StandardCharsets.UTF_8));
+        }
+        lastStatus = c.getResponseCode();
+        java.io.InputStream is = lastStatus >= 400 ? c.getErrorStream() : c.getInputStream();
+        if (is == null) {
+            String loc = c.getHeaderField("Location");
+            throw new java.io.IOException("HTTP " + lastStatus + (loc != null ? " -> " + loc : ""));
+        }
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = r.readLine()) != null) sb.append(line);
+        }
+        return sb.toString();
+    }
+
     private String post(String body) {
         try {
-            HttpURLConnection c = (HttpURLConnection)
-                    new URL(routerHost + "/jsonrpc").openConnection();
-            c.setRequestMethod("POST");
-            c.setRequestProperty("Content-Type", "application/json");
-            c.setConnectTimeout(4000);
-            c.setReadTimeout(8000);
-            c.setDoOutput(true);
-            try (OutputStream os = c.getOutputStream()) {
-                os.write(body.getBytes(StandardCharsets.UTF_8));
-            }
-            InputStream is = c.getResponseCode() >= 400 ? c.getErrorStream() : c.getInputStream();
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader r = new BufferedReader(
-                    new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = r.readLine()) != null) sb.append(line);
-            }
-            return sb.toString();
+            return postRaw(routerHost, body);
         } catch (Exception e) {
             return null;
         }
@@ -288,18 +322,47 @@ public class MainActivity extends Activity {
             req.put("id", 1);
             req.put("method", "session.login");
             req.put("params", new JSONArray().put(user).put(pass));
-            String r = post(req.toString());
-            if (r == null) return "Router tidak terjangkau — cek Wi-Fi";
-            JSONObject o = new JSONObject(r);
-            JSONArray a = o.optJSONArray("result");
-            if (a != null && a.length() > 0 && !a.isNull(0)) {
-                sid = a.getString(0);
+            String r;
+            try {
+                r = postRaw(routerHost, req.toString());
+            } catch (Exception e1) {
+                // fallback: coba protokol lain (http<->https)
+                String alt = routerHost.startsWith("https://")
+                        ? "http://" + routerHost.substring(8)
+                        : "https://" + routerHost.replaceFirst("^http://", "");
+                try {
+                    r = postRaw(alt, req.toString());
+                    sp.edit().putString(KEY_HOST, alt).apply();
+                    routerHost = alt;
+                } catch (Exception e2) {
+                    return "Tidak terjangkau di http & https (" + e2.getMessage() + ")";
+                }
+            }
+            if (r == null) return "Router tidak menjawab";
+            JSONObject o;
+            try {
+                o = new JSONObject(r);
+            } catch (Exception notJson) {
+                String snip = r.replaceAll("\\s+", " ").trim();
+                if (snip.length() > 100) snip = snip.substring(0, 100) + "…";
+                return "HTTP " + lastStatus + " — balasan bukan JSON: " + snip;
+            }
+            Object res = o.opt("result");
+            String tok = null;
+            if (res instanceof String) tok = (String) res;
+            else if (res instanceof JSONArray && ((JSONArray) res).length() > 0) tok = ((JSONArray) res).getString(0);
+            if (tok != null && !tok.isEmpty()) {
+                sid = tok;
                 sp.edit().putString(KEY_USER, user).putString(KEY_PASS, pass).apply();
                 return null;
             }
-            return "Nama pengguna atau kata sandi salah";
+            if (o.has("error")) {
+                String m = o.getJSONObject("error").optString("message", "");
+                return m.contains("login failed") ? "Nama pengguna atau kata sandi salah" : "Router menolak: " + m;
+            }
+            return "Login ditolak router (format tak dikenal)";
         } catch (Exception e) {
-            return "Router tidak menjawab via RPC (jsonrpc)";
+            return "Gagal login: " + e.getMessage();
         }
     }
 
