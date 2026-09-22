@@ -268,7 +268,7 @@ public class MainActivity extends Activity {
             }}, new java.security.SecureRandom());
             return ctx.getSocketFactory();
         } catch (Exception e) {
-            return javax.net.ssl.SSLSocketFactory.getDefault();
+            return null;
         }
     }
 
