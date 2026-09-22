@@ -255,6 +255,11 @@ public class MainActivity extends Activity {
     // ================= RPC core =================
 
     private volatile int lastStatus = 0;
+    private volatile String rpcPath = "/jsonrpc"; // bisa berubah ke /cgi-bin/luci/admin/ubus
+
+    private static final String[] RPC_CANDIDATES = {
+            "/jsonrpc", "/cgi-bin/luci/admin/ubus"
+    };
 
     private static javax.net.ssl.SSLSocketFactory trustAllFactory() {
         try {
@@ -272,8 +277,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String postRaw(String base, String body) throws Exception {
-        HttpURLConnection c = (HttpURLConnection) new URL(base + "/jsonrpc").openConnection();
+    private String postRaw(String base, String path, String body) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(base + path).openConnection();
         if (c instanceof javax.net.ssl.HttpsURLConnection) {
             javax.net.ssl.HttpsURLConnection h = (javax.net.ssl.HttpsURLConnection) c;
             javax.net.ssl.SSLSocketFactory f = trustAllFactory();
@@ -307,63 +312,84 @@ public class MainActivity extends Activity {
 
     private String post(String body) {
         try {
-            return postRaw(routerHost, body);
+            String[] paths = {rpcPath, "/jsonrpc", "/cgi-bin/luci/admin/ubus"};
+            for (String p : paths) {
+                try {
+                    String r = postRaw(routerHost, p, body);
+                    rpcPath = p;
+                    return r;
+                } catch (Exception e) {
+                    lastErr = p + " -> " + e.getMessage();
+                }
+            }
+            return null;
         } catch (Exception e) {
             return null;
         }
     }
+    private volatile String lastErr = "";
 
     /** session.login rpcd -> simpan sid. Null = sukses. */
     private String doLogin(String user, String pass) {
         sid = null;
+        JSONObject req = new JSONObject();
+        JSONObject reqCall = new JSONObject();
         try {
-            JSONObject req = new JSONObject();
             req.put("jsonrpc", "2.0");
             req.put("id", 1);
             req.put("method", "session.login");
             req.put("params", new JSONArray().put(user).put(pass));
-            String r;
-            try {
-                r = postRaw(routerHost, req.toString());
-            } catch (Exception e1) {
-                // fallback: coba protokol lain (http<->https)
-                String alt = routerHost.startsWith("https://")
-                        ? "http://" + routerHost.substring(8)
-                        : "https://" + routerHost.replaceFirst("^http://", "");
+            reqCall.put("jsonrpc", "2.0");
+            reqCall.put("id", 1);
+            reqCall.put("method", "call");
+            reqCall.put("params", new JSONArray()
+                    .put("00000000000000000000000000000000").put("session").put("login")
+                    .put(new JSONObject().put("username", user).put("password", pass)));
+        } catch (Exception e) {
+            return "Internal error";
+        }
+        String last = "Router tidak menjawab";
+        for (String p : RPC_CANDIDATES) {
+            for (JSONObject body : new JSONObject[]{req, reqCall}) {
+                String r;
                 try {
-                    r = postRaw(alt, req.toString());
-                    sp.edit().putString(KEY_HOST, alt).apply();
-                    routerHost = alt;
-                } catch (Exception e2) {
-                    return "Tidak terjangkau di http & https (" + e2.getMessage() + ")";
+                    r = postRaw(routerHost, p, body.toString());
+                } catch (Exception e) {
+                    last = p + ": " + e.getMessage();
+                    continue;
+                }
+                try {
+                    JSONObject o = new JSONObject(r);
+                    Object res = o.opt("result");
+                    String tok = null;
+                    if (res instanceof String) tok = (String) res;
+                    else if (res instanceof JSONArray) {
+                        JSONArray a = (JSONArray) res;
+                        if (a.length() >= 2 && a.get(1) instanceof String) tok = a.getString(1);
+                        else if (a.length() >= 2 && a.get(1) instanceof JSONObject)
+                            tok = a.getJSONObject(1).optString("token");
+                    } else if (res instanceof JSONObject)
+                        tok = ((JSONObject) res).optString("token");
+                    if (tok != null && !tok.isEmpty() && !"null".equals(tok)) {
+                        sid = tok;
+                        rpcPath = p;
+                        sp.edit().putString(KEY_USER, user).putString(KEY_PASS, pass).apply();
+                        return null;
+                    }
+                    if (o.has("error")) {
+                        String m = o.getJSONObject("error").optString("message", "");
+                        if (m.contains("login failed") || m.contains("Authentication failed"))
+                            return "Nama pengguna atau kata sandi salah";
+                        last = p + " menolak: " + m;
+                    }
+                } catch (Exception notJson) {
+                    String snip = r.replaceAll("\\s+", " ").trim();
+                    if (snip.length() > 60) snip = snip.substring(0, 60) + "…";
+                    last = p + " -> " + snip;
                 }
             }
-            if (r == null) return "Router tidak menjawab";
-            JSONObject o;
-            try {
-                o = new JSONObject(r);
-            } catch (Exception notJson) {
-                String snip = r.replaceAll("\\s+", " ").trim();
-                if (snip.length() > 100) snip = snip.substring(0, 100) + "…";
-                return "HTTP " + lastStatus + " — balasan bukan JSON: " + snip;
-            }
-            Object res = o.opt("result");
-            String tok = null;
-            if (res instanceof String) tok = (String) res;
-            else if (res instanceof JSONArray && ((JSONArray) res).length() > 0) tok = ((JSONArray) res).getString(0);
-            if (tok != null && !tok.isEmpty()) {
-                sid = tok;
-                sp.edit().putString(KEY_USER, user).putString(KEY_PASS, pass).apply();
-                return null;
-            }
-            if (o.has("error")) {
-                String m = o.getJSONObject("error").optString("message", "");
-                return m.contains("login failed") ? "Nama pengguna atau kata sandi salah" : "Router menolak: " + m;
-            }
-            return "Login ditolak router (format tak dikenal)";
-        } catch (Exception e) {
-            return "Gagal login: " + e.getMessage();
         }
+        return "RPC tidak cocok: " + last;
     }
 
     private String rpcCall(String ns, String method, String params) {
