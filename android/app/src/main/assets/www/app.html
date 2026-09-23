@@ -62,6 +62,9 @@ body{background:radial-gradient(120% 60% at 50% -10%, rgba(45,140,255,.14), tran
 .dev .nm{font-size:13.5px;font-weight:700}
 .dev .mc{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums;margin-top:2px}
 .dev .ip{margin-left:auto;text-align:right;font-size:12px;font-weight:500;color:var(--t2);font-variant-numeric:tabular-nums}
+.dev svg.kq{width:15px;height:15px;stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;
+  stroke-linejoin:round;flex:0 0 auto;margin-left:8px}
+.dev:hover svg.kq,.dev:active svg.kq{stroke:var(--amber)}
 .empty{padding:26px 8px;text-align:center;color:var(--t3);font-size:12.5px;font-weight:500;line-height:1.6}
 canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);background:var(--raise)}
 .legend{display:flex;gap:14px;margin-top:8px;font-size:10.5px;font-weight:500;color:var(--t3);flex-wrap:wrap}
@@ -92,13 +95,15 @@ canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);backgr
 .act svg{width:18px;height:18px;stroke:var(--amber);fill:none;stroke-width:1.8;flex:0 0 auto}
 .act .t{color:var(--t3);font:500 11.5px 'SG',sans-serif;margin-left:auto;white-space:nowrap}
 .act.d{color:var(--bad)}.act.d svg{stroke:var(--bad)}
-.toggle{position:relative;width:42px;height:24px;border-radius:12px;background:rgba(255,255,255,.12);
- border:none;cursor:pointer;transition:background .2s;flex:0 0 auto}
+.toggle{position:relative;width:42px;height:24px;border-radius:12px;
+  margin:-10px;padding:10px;border:none;cursor:pointer;flex:0 0 auto;
+  -webkit-appearance:none;appearance:none;
+  background:rgba(255,255,255,.12);background-clip:content-box;transition:background .2s}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;
  background:var(--t2);transition:transform .22s cubic-bezier(.34,1.3,.64,1),background .2s}
 .toggle.on{background:rgba(45,140,255,.35)}
 .toggle.on::after{transform:translateX(18px);background:var(--amber)}
-.skel{background:linear-gradient(90deg,var(--surf),#1d1f26,var(--surf));background-size:400% 100%;
+.skel{background:linear-gradient(90deg,var(--surf),var(--raise),var(--surf));background-size:400% 100%;
  animation:sk 1.3s infinite;border-radius:var(--r-lg);height:92px;margin-bottom:12px}
 @keyframes sk{0%{background-position:100% 0}100%{background-position:-100% 0}}
 pre.out{background:var(--raise);border:1px solid var(--hair);border-radius:var(--r);padding:12px;
@@ -113,9 +118,9 @@ pre.out{background:var(--raise);border:1px solid var(--hair);border-radius:var(-
  background:rgba(9,16,24,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
  border-top:1px solid var(--hair);display:flex;padding:6px 4px calc(8px + env(safe-area-inset-bottom))}
 .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;
- background:none;border:none;color:var(--t3);font:500 9.5px 'SG',sans-serif;cursor:pointer}
+ background:none;border:none;color:var(--t2);font:600 9.5px 'SG',sans-serif;cursor:pointer}
 .tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-svg.owmi{width:21px;height:21px;display:block}
+.tab svg.owmi{stroke:none;fill:currentColor}
 .tab.on{color:var(--amber);text-shadow:0 0 14px rgba(45,140,255,.7)}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}.bar i,.toggle{transition:none}}
 </style></head><body>
@@ -216,7 +221,7 @@ var IC={home:svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><pat
  sig:svg('<path d="M4 20v-5M9.3 20V10M14.7 20V6M20 20V12"/>'),
  ow:svg('<circle cx="12" cy="13" r="8.5"/><path d="M8.6 12.4a5 5 0 0 1 6.8 0"/><path d="M6.4 10a8.4 8.4 0 0 1 11.2 0"/><circle cx="12" cy="15.4" r="1" fill="currentColor" stroke="none"/>'),
  panel:svg('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l2.5 2.5L7 14M12 14h5"/>'),
- owm:'<svg viewBox=\"0 0 265 317\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\"> <g id=\"layer1\" transform=\"translate(-283.75,-175.10194)\"> <g id=\"g980\" transform=\"matrix(7.1406724,0,0,-7.1406724,-2988.7002,1566.7533)\" > <g id=\"g982\" > <g id=\"g988\" transform=\"translate(476.8096,171.6863)\" > <path d=\"m 0,0 c -1.666,0 -3.016,-1.35 -3.016,-3.016 0,-1.665 1.35,-3.016 3.016,-3.016 1.666,0 3.016,1.351 3.016,3.016 C 3.013,-1.351 1.665,-0.003 0,0\" id=\"path990\" /> </g> <g id=\"g992\" transform=\"translate(458.2832,187.1968)\" > <path d=\"m 0,0 3.139,-3.139 c 3.939,3.939 9.386,6.37 15.387,6.37 6.002,0 11.449,-2.432 15.388,-6.37 L 37.053,0 C 32.313,4.74 25.759,7.694 18.526,7.694 11.294,7.694 4.739,4.74 0,0\" id=\"path994\" /> </g> <g id=\"g996\" transform=\"translate(463.9456,181.5344)\" > <path d=\"m 0,0 3.139,-3.139 c 2.493,2.493 5.94,4.031 9.724,4.031 3.784,0 7.233,-1.538 9.726,-4.031 L 25.729,0 C 22.436,3.293 17.881,5.356 12.865,5.356 7.848,5.356 3.294,3.294 0.001,0\" id=\"path998\" /> </g> <g id=\"g1000\" transform=\"translate(469.5774,175.9019)\" > <path d=\"m 0,0 3.139,-3.139 c 2.262,2.257 5.924,2.257 8.186,0 L 14.464,0 C 12.547,1.918 9.944,2.993 7.232,2.985 4.432,2.985 1.876,1.846 0,0\" id=\"path1002\" /> </g> <g id=\"g1004\" transform=\"translate(487.95,176.7642)\" > <path d=\"m 0,0 c 1.662,-2.277 2.647,-5.078 2.647,-8.094 0,-7.601 -6.186,-13.787 -13.787,-13.787 -7.602,0 -13.787,6.186 -13.787,13.787 0,3.016 0.984,5.817 2.646,8.094 l -3.17,3.17 c -2.462,-3.108 -3.908,-7.017 -3.908,-11.264 0,-10.032 8.186,-18.218 18.219,-18.218 10.032,0 18.218,8.186 18.218,18.218 0,4.247 -1.477,8.156 -3.908,11.264 z\" id=\"path1006\" /> </g> </g> </g> </g> </svg> '}
+ owm:'<svg class=\"owmi\" viewBox=\"0 0 265 317\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\"> <g id=\"layer1\" transform=\"translate(-283.75,-175.10194)\"> <g id=\"g980\" transform=\"matrix(7.1406724,0,0,-7.1406724,-2988.7002,1566.7533)\" > <g id=\"g982\" > <g id=\"g988\" transform=\"translate(476.8096,171.6863)\" > <path d=\"m 0,0 c -1.666,0 -3.016,-1.35 -3.016,-3.016 0,-1.665 1.35,-3.016 3.016,-3.016 1.666,0 3.016,1.351 3.016,3.016 C 3.013,-1.351 1.665,-0.003 0,0\" id=\"path990\" /> </g> <g id=\"g992\" transform=\"translate(458.2832,187.1968)\" > <path d=\"m 0,0 3.139,-3.139 c 3.939,3.939 9.386,6.37 15.387,6.37 6.002,0 11.449,-2.432 15.388,-6.37 L 37.053,0 C 32.313,4.74 25.759,7.694 18.526,7.694 11.294,7.694 4.739,4.74 0,0\" id=\"path994\" /> </g> <g id=\"g996\" transform=\"translate(463.9456,181.5344)\" > <path d=\"m 0,0 3.139,-3.139 c 2.493,2.493 5.94,4.031 9.724,4.031 3.784,0 7.233,-1.538 9.726,-4.031 L 25.729,0 C 22.436,3.293 17.881,5.356 12.865,5.356 7.848,5.356 3.294,3.294 0.001,0\" id=\"path998\" /> </g> <g id=\"g1000\" transform=\"translate(469.5774,175.9019)\" > <path d=\"m 0,0 3.139,-3.139 c 2.262,2.257 5.924,2.257 8.186,0 L 14.464,0 C 12.547,1.918 9.944,2.993 7.232,2.985 4.432,2.985 1.876,1.846 0,0\" id=\"path1002\" /> </g> <g id=\"g1004\" transform=\"translate(487.95,176.7642)\" > <path d=\"m 0,0 c 1.662,-2.277 2.647,-5.078 2.647,-8.094 0,-7.601 -6.186,-13.787 -13.787,-13.787 -7.602,0 -13.787,6.186 -13.787,13.787 0,3.016 0.984,5.817 2.646,8.094 l -3.17,3.17 c -2.462,-3.108 -3.908,-7.017 -3.908,-11.264 0,-10.032 8.186,-18.218 18.219,-18.218 10.032,0 18.218,8.186 18.218,18.218 0,4.247 -1.477,8.156 -3.908,11.264 z\" id=\"path1006\" /> </g> </g> </g> </g> </svg> '}
 
 /* ===== state ===== */
 var cache={board:null,ifaces:[],st:{},wifi:null,dev:null,leases:null,load:'',uci:null,mm:null,srv:null};
@@ -350,7 +355,8 @@ function screenDev(){
   var nm=x.hostname||x.mac.split(':').slice(-3).join('-');
   return'<div class="dev" data-kick="'+i+'"><div class="av">'+esc(nm.slice(0,2).toUpperCase())+'</div>'+
    '<div style="min-width:0"><div class="nm">'+esc(nm)+'</div><div class="mc">'+esc(x.mac)+'</div></div>'+
-   '<div class="ip">'+esc(x.ip||'')+'</div></div>'}).join('')+
+   '<div class="ip">'+esc(x.ip||'')+'</div>'+
+   '<svg class="kq" viewBox="0 0 24 24"><path d="M12 4.5v10M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19.5h14"/></svg></div>'}).join('')+
  '</div><div class="empty" style="padding-top:4px">Ketuk perangkat untuk memutus sambungnya (kick).</div>';}
  else h+='<div class="empty" style="padding-top:4px">Belum ada klien DHCP terdaftar.</div>';
  var known=Object.keys(DEVH).filter(function(m){return !ls||!ls.some(function(x){return x.mac===m})});
@@ -438,7 +444,7 @@ function screenSys(){
   '<button class="act" data-act="web">'+IC.panel+'Semua halaman LuCI<span class="t">penuh</span></button></div>';
  h+='<div class="card"><h3>Tindakan</h3>'+
   '<button class="act" data-act="reload">'+IC.wifi+'Muat ulang WiFi<span class="t">±5 dtk</span></button>'+
-  '<button class="act" data-act="web">'+IC.panel+'Buka panel LuCI lengkap<span class="t">semua setting</span></button>'+
+
   '<button class="act" data-act="host">'+IC.net+'Ganti alamat router</button>'+
   '<button class="act d" data-act="reboot">'+IC.reboot+'Reboot router<span class="t">±1 mnt</span></button>'+
   '<button class="act d" data-act="out">Keluar<span class="t">ganti akun / IP</span></button></div>';
@@ -508,17 +514,19 @@ function bind(){
    then(function(){msg('Radio '+k+(up?' aktif':' dimatikan'));setTimeout(refresh2,1600)}).
    catch(function(){t.classList.toggle('on',!up);msg('Gagal mengubah radio')})})});
  document.querySelectorAll('[data-saveiface]').forEach(function(b){b.addEventListener('click',function(){
-  b.textContent='Menyimpan…';
+  if(b.disabled)return;b.disabled=true;b.textContent='Menyimpan…';
   uciApplySec(b.dataset.saveiface,collect(b.dataset.saveiface)).
    then(function(){b.textContent='Simpan perubahan';refresh2()}).
-   catch(function(){b.textContent='Simpan perubahan';msg('Gagal menyimpan')})})});
+   catch(function(){b.textContent='Simpan perubahan';msg('Gagal menyimpan')}).
+   finally(function(){b.disabled=false})})});
  document.querySelectorAll('[data-savedev]').forEach(function(b){b.addEventListener('click',function(){
   var sec=b.dataset.savedev,vals=collect(sec);
   var off=document.querySelector('[data-devoff="'+sec+'"]');
   if(off)vals.disabled=off.classList.contains('on')?'1':'0';
-  b.textContent='Menyimpan…';
+  if(b.disabled)return;b.disabled=true;b.textContent='Menyimpan…';
   uciApplySec(sec,vals).then(function(){b.textContent='Simpan radio';refresh2()}).
-   catch(function(){b.textContent='Simpan radio';msg('Gagal menyimpan')})})});
+   catch(function(){b.textContent='Simpan radio';msg('Gagal menyimpan')}).
+   finally(function(){b.disabled=false})})});
  document.querySelectorAll('[data-devoff]').forEach(function(t){t.addEventListener('click',function(){
   t.classList.toggle('on')})});
  document.querySelectorAll('[data-kick]').forEach(function(d){d.addEventListener('click',function(){
@@ -589,6 +597,10 @@ function histSample(){
  }catch(e){}}
 var DEVH={};
 try{DEVH=JSON.parse(localStorage.getItem('owrt_devhist')||'{}')}catch(e){}
+if(location.search.indexOf('mock')>=0&&!Object.keys(DEVH).length){
+ DEVH={'AA:BB:CC:77:88:99':{n:'Laptop-Kantor',i:'192.168.1.71',l:Date.now()-36e5*5},
+ 'AA:BB:CC:AA:BB:CC':{n:'ESP-SmartLamp',i:'192.168.1.88',l:Date.now()-36e5*26},
+ 'AA:BB:CC:11:99:00':{n:'Printer-HP',i:'192.168.1.92',l:Date.now()-36e5*70}}}
 function devHistSave(){try{localStorage.setItem('owrt_devhist',JSON.stringify(DEVH))}catch(e){}}
 function devHistUpdate(){
  if(!cache.leases)return;

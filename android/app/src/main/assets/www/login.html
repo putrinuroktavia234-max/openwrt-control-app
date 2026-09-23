@@ -28,6 +28,21 @@ body{background:var(--ink);font-family:'SG',system-ui,sans-serif;color:var(--tex
   background:
    radial-gradient(120% 55% at 50% -8%, rgba(45,140,255,.10), transparent 60%),
    var(--ink)}
+.heroArt{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;min-height:150px;padding:2px 0 6px;position:relative}
+.heroArt .rings{position:relative;width:132px;height:132px;display:flex;align-items:center;justify-content:center}
+.heroArt .rings::before,.heroArt .rings::after{content:"";position:absolute;inset:0;border-radius:50%;
+  border:1.5px solid rgba(45,140,255,.16)}
+.heroArt .rings::after{inset:22px;border-color:rgba(45,140,255,.24)}
+.heroArt .hub{position:relative;width:76px;height:76px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #16314F, #0B1626);
+  border:1px solid rgba(120,170,255,.32);
+  box-shadow:0 0 0 6px rgba(45,140,255,.08), 0 10px 30px rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center}
+.heroArt .hub svg{width:34px;height:34px;stroke:var(--amber);fill:none;stroke-width:1.7;
+  stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(45,140,255,.6))}
+.heroArt .stat{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;color:var(--text-3)}
+.heroArt .stat i{width:6px;height:6px;border-radius:50%;background:var(--led);box-shadow:0 0 8px rgba(62,207,142,.8)}
 
 .deck{flex:0 0 auto;padding:30px 26px 30px;position:relative}
 .toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
@@ -107,6 +122,13 @@ body{background:var(--ink);font-family:'SG',system-ui,sans-serif;color:var(--tex
     <div class="meta">
       <div>Perangkat<b>STB · OpenWrt</b></div>
       <div>Gateway<b id="hostLabel">192.168.1.1</b></div>
+    </div>
+
+    <div class="heroArt" aria-hidden="true">
+      <div class="rings"><div class="hub">
+        <svg viewBox="0 0 24 24"><path d="M4 9a11.5 11.5 0 0 1 16 0M7.2 12.4a7 7 0 0 1 9.6 0M10.4 15.6a2.6 2.6 0 0 1 3.2 0"/><circle cx="12" cy="18.6" r=".9" fill="currentColor" stroke="none"/></svg>
+      </div></div>
+      <div class="stat"><i></i><span>Memindai jaringan gateway…</span></div>
     </div>
   </header>
 
