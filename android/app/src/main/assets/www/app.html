@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="id"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=yes,maximum-scale=5,viewport-fit=cover">
 <title>OpenWrt</title>
 <style>
 @font-face{font-family:'SG';src:url('fonts/sg-500.woff2') format('woff2');font-weight:500;font-display:swap}
 @font-face{font-family:'SG';src:url('fonts/sg-700.woff2') format('woff2');font-weight:700;font-display:swap}
 :root{
  --ink:#091018;--surf:#0E1A28;--raise:#132238;--hair:rgba(120,170,255,.12);
- --t1:#EAF2FF;--t2:#8FA8CC;--t3:#54718F;
+ --t1:#EAF2FF;--t2:#8FA8CC;--t3:#6E89AB;
  --amber:#2D8CFF;--ok:#3ECF8E;--bad:#FF5F6D;--r:12px;--r-lg:18px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -109,7 +109,20 @@ canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);backgr
 pre.out{background:var(--raise);border:1px solid var(--hair);border-radius:var(--r);padding:12px;
  font:500 10.5px/1.55 ui-monospace,monospace;color:var(--t2);margin-top:10px;
  white-space:pre-wrap;word-break:break-all}
-.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(14px);
+.overlay{position:fixed;inset:0;background:rgba(4,8,14,.66);backdrop-filter:blur(3px);
+ z-index:20;display:flex;align-items:center;justify-content:center;padding:26px;
+ opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.show{opacity:1;pointer-events:auto}
+.dlg{width:100%;max-width:330px;background:var(--surf);border:1px solid rgba(120,170,255,.28);
+ border-radius:20px;padding:22px 20px calc(20px + env(safe-area-inset-bottom));
+ box-shadow:0 24px 60px rgba(0,0,0,.6);transform:translateY(10px) scale(.97);transition:transform .22s}
+.overlay.show .dlg{transform:none}
+.dlg p{font-size:14px;font-weight:500;color:var(--t1);line-height:1.5;margin-bottom:20px}
+.dlg .rowb{display:flex;gap:10px}
+.dlg .rowb button{flex:1;height:46px;border-radius:12px;font:700 14px 'SG',sans-serif;cursor:pointer}
+.dlg .cancel{background:var(--raise);border:1px solid var(--hair);color:var(--t2)}
+.dlg .ok{background:linear-gradient(180deg,#3D9CFF,var(--amber-deep));border:none;color:#fff}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);
  background:#16314F;border:1px solid rgba(120,170,255,.25);color:var(--t1);font-size:12.5px;font-weight:500;
  padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:9;pointer-events:none;max-width:88%;
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -141,8 +154,8 @@ var M_TRX=0;
 var seq=0,cbs={};
 function __cb(id,s){var f=cbs[id];delete cbs[id];if(f)f(s)}
 function rpc(ns,m,p){return new Promise(function(res,rej){
-  var id=++seq;
-  cbs[id]=function(raw){var o;try{o=JSON.parse(raw)}catch(e){return rej(new Error('bad json'))}
+  var id=++seq,timer=null;
+  cbs[id]=function(raw){if(timer)clearTimeout(timer);var o;try{o=JSON.parse(raw)}catch(e){return rej(new Error('bad json'))}
     if(o.error)rej(new Error(o.error.message||'error'));
     else{var r=o.result;
       if(Object.prototype.toString.call(r)==='[object Array]'){
@@ -150,6 +163,7 @@ function rpc(ns,m,p){return new Promise(function(res,rej){
         r=r.length>1?r[1]:{}}
       res(r===undefined?null:r)}};
   try{App.rpc(ns,m,JSON.stringify(p||{}),id)}catch(e){rej(new Error('no bridge'))}
+  timer=setTimeout(function(){delete cbs[id];rej(new Error('rpc timeout'))},12000);
 })}
 function sh(cmd){return rpc('file','exec',{command:cmd}).then(function(r){
   if(typeof r==='string')return r;
@@ -206,10 +220,24 @@ function fmtUp(n){n=+n;if(isNaN(n))return'—';
  var d=Math.floor(n/86400),h=Math.floor(n%86400/3600),m=Math.floor(n%3600/60);
  if(d>0)return d+'h '+h+'j';if(h>0)return h+'j '+m+'m';return m+'m'}
 function pct(a,b){return b?Math.min(100,Math.max(2,Math.round(a/b*100))):0}
-var _tm;function msg(t){var e=$('#toast');e.textContent=t;e.classList.add('show');
+var _tm;/* dialog konfirmasi kustom: menjamin cb dipanggil (confirm() 2-arg tidak andal di WebView) */
+var _ov=null;
+function askConfirm(text,cb){
+ _ov=document.createElement('div');_ov.className='overlay';
+ _ov.innerHTML='<div class="dlg"><p>'+text+'</p><div class="rowb">'+
+  '<button class="cancel" type="button">Batal</button>'+
+  '<button class="ok" type="button">Ya, lanjutkan</button></div></div>';
+ document.body.appendChild(_ov);
+ requestAnimationFrame(function(){_ov.classList.add('show')});
+ function close(){_ov.classList.remove('show');setTimeout(function(){_ov.remove()},220);_ov=null}
+ _ov.querySelector('.cancel').addEventListener('click',function(){close();cb(false)});
+ _ov.querySelector('.ok').addEventListener('click',function(){close();cb(true)});
+ _ov.addEventListener('click',function(e){if(e.target===_ov){close();cb(false)}})}
+function msg(t){var e=$('#toast');e.textContent=t;e.classList.add('show');
  clearTimeout(_tm);_tm=setTimeout(function(){e.classList.remove('show')},2300)}
 function rows(d){var h='';for(var i=0;i<d.length;i++)
  h+='<div class="row"><span class="k">'+esc(d[i][0])+'</span><span class="v">'+esc(d[i][1]==null||d[i][1]===''?'—':d[i][1])+'</span></div>';return h}
+function histWinLabel(){var m=HIST.max*8/60;return m>=60?(m/60).toFixed(1)+' jam':Math.round(m)+' menit'}
 function skel(n){var h='';for(var i=0;i<n;i++)h+='<div class="skel"></div>';return h}
 function svg(p){return'<svg viewBox="0 0 24 24">'+p+'</svg>'}
 var IC={home:svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>'),
@@ -350,10 +378,10 @@ function screenDev(){
  if(ls===null)return skel(3);
  var h='';
  h+=chartCard('Riwayat perangkat terhubung',null,'dev','#2D8CFF',null,
- '<span><i style="background:#2D8CFF"></i>Grafik jumlah klien tiap 8 detik, tersimpan sampai '+(HIST.max*8/3600).toFixed(0)+' jam</span>');
+ histWinLabel());
  if(ls.length){h+='<div class="card"><h3>Sedang terhubung · '+ls.length+'</h3>'+ls.map(function(x,i){
   var nm=x.hostname||x.mac.split(':').slice(-3).join('-');
-  return'<div class="dev" data-kick="'+i+'"><div class="av">'+esc(nm.slice(0,2).toUpperCase())+'</div>'+
+  return'<div class="dev" data-kick="'+esc(x.mac)+'"><div class="av">'+esc(nm.slice(0,2).toUpperCase())+'</div>'+
    '<div style="min-width:0"><div class="nm">'+esc(nm)+'</div><div class="mc">'+esc(x.mac)+'</div></div>'+
    '<div class="ip">'+esc(x.ip||'')+'</div>'+
    '<svg class="kq" viewBox="0 0 24 24"><path d="M12 4.5v10M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19.5h14"/></svg></div>'}).join('')+
@@ -460,7 +488,7 @@ function loadAll(){
   sh(['cat','/proc/loadavg']).then(function(s){cache.load=(s||'').trim().split(/\s+/).slice(0,3).join(' / ')}),
   rpc('network.interface','dump',{}).then(function(r){
     cache.ifaces=(r&&r.interface)||[];
-    return Promise.allSettled(cache.ifaces.slice(0,6).map(function(i){
+    return Promise.allSettled(cache.ifaces.map(function(i){
       return rpc('network.interface','status',{interface:i.interface}).
        then(function(s){cache.st[i.interface]=s})}))} ),
   sh(['uci','show','wireless']).then(function(s){cache.uci=parseUci(s)}),
@@ -530,14 +558,18 @@ function bind(){
  document.querySelectorAll('[data-devoff]').forEach(function(t){t.addEventListener('click',function(){
   t.classList.toggle('on')})});
  document.querySelectorAll('[data-kick]').forEach(function(d){d.addEventListener('click',function(){
-  var x=cache.leases[+d.dataset.kick];if(!x)return;
-  if(!confirm('Putus '+ (x.hostname||x.mac) +' dari WiFi? Perangkat harus masuk ulang.'))return;
-  var dev='wlan0',w=cache.wifi;
-  for(var k in w){var r=w[k];
-   if(r&&r.associated&&r.associated.some(function(a){return a.mac===x.mac})){dev=r['network-device']||dev;break}}
-  sh(['iw','dev',dev,'station','del',x.mac]).
-   then(function(){msg('Perangkat diputus');refresh2()}).
-   catch(function(){msg('Kick gagal di '+dev)})})});
+  var mac=d.dataset.kick,x=null;(cache.leases||[]).forEach(function(l){if(l.mac===mac)x=l});if(!x)return;
+  askConfirm('Putus <b>'+esc(x.hostname||x.mac)+'</b> dari WiFi? Perangkat harus masuk ulang.',function(yn){if(!yn)return;doKick(x)})})});
+/* kick perangkat berdasarkan MAC (bukan indeks: aman dari pergeseran refresh) */
+function doKick(x){
+ if(!x||!x.mac)return;
+ var dev='wlan0',w=cache.wifi,onWifi=false;
+ for(var k in w){var r=w[k];
+  if(r&&r.associated&&r.associated.some(function(a){return a.mac===x.mac})){dev=r['network-device']||dev;onWifi=true;break}}
+ if(!onWifi){msg(x.hostname||x.mac+' terhubung via kabel — tidak bisa diputus');return}
+ sh(['iw','dev',dev,'station','del',x.mac]).
+  then(function(){msg('Perangkat diputus');refresh2()}).
+  catch(function(){msg('Kick gagal di '+dev)})}
  var pg=$('#pingGo');
  if(pg)pg.addEventListener('click',function(){
   var host2=($('#pingHost').value||'8.8.8.8').trim();
@@ -567,9 +599,9 @@ function bind(){
   if(k==='web')return App.openWeb();
   if(k==='host')return App.changeHost();
   if(k==='out')return App.goLogin();
-  if(k==='reload')return confirm('Muat ulang WiFi? Koneksi nirkabel terputus ±5 detik.',function(){
+  if(k==='reload')return askConfirm('Muat ulang WiFi? Koneksi nirkabel terputus ±5 detik.',function(){
    rpc('network.wireless','reload',{}).then(function(){msg('WiFi dimuat ulang');setTimeout(refresh2,3200)})});
-  if(k==='reboot')return confirm('Reboot router? Semua perangkat terputus ±1 menit.',function(){
+  if(k==='reboot')return askConfirm('Reboot router? Semua perangkat terputus ±1 menit.',function(){
    msg('Mengirim perintah reboot…');rpc('system','reboot',{}).catch(function(){})})})})}
 
 /* ===== riwayat & grafik (localStorage, zero library) ===== */
@@ -590,7 +622,8 @@ function histSample(){
   var t=Date.now(),row={t:t,dl:0,ul:0,sig:sig||0,mem:mem||0,dev:devN,cpu:cpu||0};
   if(last&&t-last.t>1500&&dl>=last._rdl){row.dl=Math.round((dl-last._rdl)*1000/(t-last.t));row.ul=Math.round((ul-last._rul)*1000/(t-last.t))}
   row._rdl=dl;row._rul=ul;
-  if(last&&(dl<last._rdl||ul<last._rul)){/* counter reset */}
+  if(last&&(dl<last._rdl||ul<last._rul)){/* counter reset: tandai jeda, jangan rate 0 palsu */
+   row.gap=true}
   HIST.rows.push(row);
   if(HIST.rows.length>HIST.max)HIST.rows=HIST.rows.slice(-HIST.max);
   histSave();
@@ -669,6 +702,20 @@ function drawAllCharts(){
 
 /* ===== shell aplikasi ===== */
 function render(){
+ /* jangan hapus input/textarea/pre yang sedang difokus pengguna */
+ var ae=document.activeElement;
+ if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')&&ae.closest('#view')){
+  /* simpan & kembalikan fokus + posisi caret setelah render */
+  var sel={id:ae.id||'',name:ae.name||'',type:ae.type||'',pos:ae.selectionStart};
+  $('#view').innerHTML=tab==='home'?screenHome():tab==='wifi'?screenWifi():
+   tab==='net'?screenNet():tab==='modem'?screenModem():tab==='dev'?screenDev():screenSys();
+  bind();drawAllCharts();
+  if(sel.id||sel.name){
+   var q=sel.id?'#'+CSS.escape(sel.id):'#view [name="'+sel.name+'"]';
+   var el=document.querySelector(q);
+   if(el&&el.type===sel.type){el.focus();
+    try{if(sel.pos!=null)el.setSelectionRange(sel.pos,sel.pos)}catch(e){}}}
+  return}
  $('#view').innerHTML=tab==='home'?screenHome():tab==='wifi'?screenWifi():
   tab==='net'?screenNet():tab==='modem'?screenModem():tab==='dev'?screenDev():screenSys();
  bind();drawAllCharts()}
@@ -680,14 +727,16 @@ function buildTabs(){
   tab=el.dataset.tab;history.replaceState(null,'','#'+tab);
   document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x.dataset.tab===tab)});
   $('#scrTitle').textContent=TITLES[tab];render();$('#view').scrollTop=0})})}
+var _busy=false;
 function refresh2(){
+ if(_busy)return;_busy=true;
  loadAll().then(function(){
   histSample();devHistUpdate();
   setConn(!!cache.board);
   $('#scrSub').textContent=cache.board
    ?cache.board.hostname+' · '+((cache.board.release||{}).openwrt||'OpenWrt')
    :'perangkat tidak merespons';
-  render();drawAllCharts()})}
+  render();drawAllCharts()})['finally'](function(){_busy=false})}
 function setConn(ok){var c=$('#conn');c.className='chip '+(ok?'on':'off');
  c.querySelector('span').textContent=ok?'ONLINE':'OFFLINE'}
 buildTabs();
