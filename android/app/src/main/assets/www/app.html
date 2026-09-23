@@ -95,6 +95,20 @@ canvas.chart{width:100%;height:160px;display:block;border-radius:var(--r);backgr
 .act svg{width:18px;height:18px;stroke:var(--amber);fill:none;stroke-width:1.8;flex:0 0 auto}
 .act .t{color:var(--t3);font:500 11.5px 'SG',sans-serif;margin-left:auto;white-space:nowrap}
 .act.d{color:var(--bad)}.act.d svg{stroke:var(--bad)}
+.sub{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin:12px 0 8px}
+pre.log{background:var(--raise);border:1px solid var(--hair);border-radius:var(--r);padding:11px 12px;
+ font:500 10.5px/1.6 ui-monospace,monospace;color:var(--t2);margin-top:10px;max-height:240px;overflow:auto;
+ white-space:pre-wrap;word-break:break-all}
+.kbtn{background:var(--raise);border:1px solid var(--hair);color:var(--t2);border-radius:99px;
+ font:600 10px 'SG',sans-serif;padding:5px 11px;cursor:pointer;flex:0 0 auto}
+.kbtn:active{color:var(--amber);border-color:rgba(45,140,255,.5)}
+.mcard{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--hair)}
+.mcard:last-child{border-bottom:none}
+.mcard .mc{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.mcard .ip{font-size:10.5px;color:var(--t3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inum{width:66px;background:var(--raise);border:1px solid var(--hair);border-radius:8px;
+ color:var(--t1);font:700 12.5px 'SG',sans-serif;text-align:right;padding:6px 8px;outline:none;flex:0 0 auto}
+.inum:focus{border-color:rgba(45,140,255,.6)}
 .toggle{position:relative;width:42px;height:24px;border-radius:12px;
   margin:-10px;padding:10px;border:none;cursor:pointer;flex:0 0 auto;
   -webkit-appearance:none;appearance:none;
@@ -198,17 +212,33 @@ if(!window.App&&location.search.indexOf('mock')>=0){
       'wlan0':{name:'wlan0',stats:{rx_bytes:512114520,tx_bytes:128368602}},
       'wsap0':{name:'wsap0',stats:{rx_bytes:8214967296+M_TRX,tx_bytes:612145203+M_TRX*0.4}}};
    }else
-   if(ns==='file'&&m==='exec'){var c=(p.command||[]).join(' ');
+   if(ns==='file'&&m==='exec'){var cmd=p.command||[];
+   var c=typeof cmd==='string'?cmd:cmd.join(' ');
      if(c.indexOf('dhcp.leases')>=0)r='1758588140 AA:BB:CC:11:22:33 192.168.1.50 HP-Ali *\n1758588140 AA:BB:CC:44:55:66 192.168.1.63 TV-Ruang *';
      else if(c.indexOf('loadavg')>=0)r='0.34 0.21 0.12 1/123 4567';
      else if(c.indexOf('uci show')>=0)r="wireless.wlan0='wifi-device'\nwireless.wlan0.channel='6'\nwireless.wlan0.htmode='HT20'\nwireless.wlan0.disabled='0'\nwireless.radio0='wifi-device'\nwireless.radio0.channel='auto'\nwireless.radio0.disabled='1'\nwireless.default='wifi-iface'\nwireless.default.device='wlan0'\nwireless.default.network='lan'\nwireless.default.mode='ap'\nwireless.default.ssid='KRISTAL-24G'\nwireless.default.encryption='psk2'\nwireless.default.key='rahasia123'\nwireless.fwwan='wifi-iface'\nwireless.fwwan.device='radio0'\nwireless.fwwan.network='wan'\nwireless.fwwan.mode='sta'\nwireless.fwwan.ssid='MI9-Tether'\nwireless.fwwan.encryption='none'\n";
      else if(c.indexOf('mmcli -L')>=0)r='/org/freedesktop/ModemManager1/Modem/0 [Quectel] EC200A';
      else if(c.indexOf('mmcli')>=0)r="modem.state='connected (default bearer activated)'\ngeneral.manufacturer='Quectel'\ngeneral.model='EC200A'\ngeneral.imei='861234567890123'\n3gpp.imsi='510012345678901'\n3gpp.operator-code='510 01'\n3gpp.operator='Telkomsel'\n3gpp.apn='internet'\nnetwork.device='cdc_wdm'\nnetwork.technology='lte'\nnetwork.state='connected'\nnetwork.position='0,0'\nnetwork.pdp.contexts='2'\nmode.enabled='allowed-mode=4g'\nnetwork.signal.level='-67 dBm'\nnetwork.quality='78'\n";
      else if(c.indexOf('init.d')>=0)r='andromodem:on\nopenclash:on\ntailscale:on\nupnpd:off\neqosplus:off\ninternet-detector:on\n';
+     else if(c.indexOf('net/dev')>=0)r='  eth0: 1489322512  48291    0 0 0 0  942114520  39871    0 0 0 0\n  wlan0: 512114520  22103    0 0 0 0  128368602  18342    0 0 0 0\n  br-lan: 961520384  18842    0 0 0 0  1484210331 22291    0 0 0 0\n  rndis0: 12345678  4211    0 0 0 0  8765432  3012    0 0 0 0\n';
+     else if(c.indexOf('lsblk')>=0)r='sda  119.2G disk          Samsung BAR\nsda1  119.2G part /mnt/sda1 ext4\nmmcblk0   7.3G disk         \nmmcblk0p1 7.3G part /overlay ext4\nzram0    1.5G disk          \n';
+     else if(c.indexOf('list-installed')>=0&&c.indexOf('wc')>=0)r='1843\n---\n3\n';
+     else if(c.indexOf('list-upgradable')>=0)r='openclash - 2025.9.1-1\nluci - 23.05.4\nvim - 9.1.0\n';
+     else if(c.indexOf('mac-todong')>=0)r="mac-todong.@rule[0]=rule\nmac-todong.@rule[0].enabled='1'\nmac-todong.@rule[0].macaddr='AA:BB:CC:44:55:66'\nmac-todong.@rule[0].method='firewall'\n";
+     else if(c.indexOf('eqosplus')>=0)r="eqosplus.config=eqosplus\neqosplus.config.enabled='1'\neqosplus.config.download='1000'\neqosplus.config.upload='30'\neqosplus.cfg2f3a4d=device\neqosplus.cfg2f3a4d.mac='AA:BB:CC:11:22:33'\neqosplus.cfg2f3a4d.download='5'\neqosplus.cfg2f3a4d.upload='2'\neqosplus.cfg2f3a4d.enable='1'\n";
+     else if(c.indexOf('openclash')>=0)r="openclash.config=openclash\nopenclash.config.enabled='1'\nopenclash.config.enhanced_mode='redir-host'\nopenclash.config.proxy_mode='rule\nopenclash.config.config_path='/etc/openclash/config.yaml'\nopenclash.config.custom_domain_dns_server='1.1.1.1'\nopenclash.servers=servers\nopenclash.servers.server='ssr.example.com:443'\n";
+     else if(c.indexOf('tailscale')>=0)r="# self openwrt-router 100.64.0.7 active\n100.64.0.9 hp-android active";
+     else if(c.indexOf('ip -o link show')>=0)r='2: rndis0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000\n4: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default\n';
+     else if(c.indexOf('ip -o addr')>=0)r='2: rndis0    inet 192.168.42.129/24 scope global rndis0\n   valid_lft forever preferred_lft forever\n';
+     else if(c.indexOf('ip -s link')>=0)r='2: rndis0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc\n    RX: bytes packets errors dropped\n    12345678 4211 0 0\n    TX: bytes packets errors dropped\n    8765432 3012 0 0\n';
+     else if(c.indexOf('device-tree/model')>=0)r='Amlogic Meson GXBB P201 (S905)|/dev/mmcblk0 /dev/mmcblk0p1 |/usr/sbin/openwrt-install';
+     else if(c.indexOf('ttyd')>=0)r='UP';
+     else if(c.indexOf('drop_caches')>=0)r='- 81920';
+     else if(c.indexOf('MemAvailable')>=0)r='MemAvailable:  421432 kB';
      else if(c.indexOf('ping')>=0)r='PING 8.8.8.8 (8.8.8.8): 56 data bytes\n64 bytes from 8.8.8.8: seq=0 ttl=118 time=14.21 ms\n64 bytes from 8.8.8.8: seq=1 ttl=118 time=12.90 ms\n\n3 packets transmitted, 2 received, 33% loss\n';
      else r=''}
    __cb(id,JSON.stringify({result:r}))},220)},
-  openWeb:function(){},changeHost:function(){},goLogin:function(){},openAndro:function(){alert('mock: buka http://router:49153')},toast:function(t){msg(t)},back:function(){}};
+  changeHost:function(){},goLogin:function(){},toast:function(t){msg(t)},back:function(){}};
 }
 
 /* ===== util ===== */
@@ -233,6 +263,32 @@ function askConfirm(text,cb){
  _ov.querySelector('.cancel').addEventListener('click',function(){close();cb(false)});
  _ov.querySelector('.ok').addEventListener('click',function(){close();cb(true)});
  _ov.addEventListener('click',function(e){if(e.target===_ov){close();cb(false)}})}
+/* overlay penuh untuk kartu native yang butuh waktu (tidak memuat halaman web) */
+var _ov2=null;
+function openSheet(title){
+ if(_ov2)return _ov2;
+ _ov2=document.createElement('div');_ov2.className='overlay';
+ _ov2.innerHTML='<div class="dlg" style="max-width:430px;padding:0;overflow:hidden">'+
+  '<div style="padding:22px 20px 14px"><h3 style="font-size:14px;font-weight:700">'+esc(title)+'</h3>'+
+  '<div id="ovBody" style="padding:22px 20px 14px"><div class="empty" style="padding:26px 8px">Memuat data dari router…</div></div></div>'+
+  '<div style="padding:0 20px 22px"><button class="btn ghost" id="ovClose" type="button">Tutup</button></div></div>';
+ document.body.appendChild(_ov2);
+ requestAnimationFrame(function(){_ov2.classList.add('show')});
+ _ov2.querySelector('#ovClose').addEventListener('click',closeSheet);
+ _ov2.addEventListener('click',function(e){if(e.target===_ov2)closeSheet()});
+ return _ov2}
+function closeSheet(){
+ if(!_ov2)return;var o=_ov2;_ov2=null;o.classList.remove('show');
+ setTimeout(function(){o.remove()},220)}
+function setSheet(html){
+ if(!_ov2)return;var b=_ov2.querySelector('.dlg');
+ if(!b)return; b.innerHTML='<div style="padding:20px 20px 14px" id="ovBody">'+html+'</div>'+
+  '<div style="padding:0 20px 22px"><button class="btn ghost" id="ovClose" type="button">Tutup</button></div>';
+ b.querySelector('#ovClose').addEventListener('click',closeSheet);
+ bind()}
+/* dipakai bind() untuk menampilkan toast di dalam overlay */
+function bindOv(){var c=document.querySelector('#ovClose');if(c)c.addEventListener('click',closeSheet)}
+
 function msg(t){var e=$('#toast');e.textContent=t;e.classList.add('show');
  clearTimeout(_tm);_tm=setTimeout(function(){e.classList.remove('show')},2300)}
 function rows(d){var h='';for(var i=0;i<d.length;i++)
@@ -249,10 +305,21 @@ var IC={home:svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><pat
  sig:svg('<path d="M4 20v-5M9.3 20V10M14.7 20V6M20 20V12"/>'),
  ow:svg('<circle cx="12" cy="13" r="8.5"/><path d="M8.6 12.4a5 5 0 0 1 6.8 0"/><path d="M6.4 10a8.4 8.4 0 0 1 11.2 0"/><circle cx="12" cy="15.4" r="1" fill="currentColor" stroke="none"/>'),
  panel:svg('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l2.5 2.5L7 14M12 14h5"/>'),
- owm:'<svg class=\"owmi\" viewBox=\"0 0 265 317\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\"> <g id=\"layer1\" transform=\"translate(-283.75,-175.10194)\"> <g id=\"g980\" transform=\"matrix(7.1406724,0,0,-7.1406724,-2988.7002,1566.7533)\" > <g id=\"g982\" > <g id=\"g988\" transform=\"translate(476.8096,171.6863)\" > <path d=\"m 0,0 c -1.666,0 -3.016,-1.35 -3.016,-3.016 0,-1.665 1.35,-3.016 3.016,-3.016 1.666,0 3.016,1.351 3.016,3.016 C 3.013,-1.351 1.665,-0.003 0,0\" id=\"path990\" /> </g> <g id=\"g992\" transform=\"translate(458.2832,187.1968)\" > <path d=\"m 0,0 3.139,-3.139 c 3.939,3.939 9.386,6.37 15.387,6.37 6.002,0 11.449,-2.432 15.388,-6.37 L 37.053,0 C 32.313,4.74 25.759,7.694 18.526,7.694 11.294,7.694 4.739,4.74 0,0\" id=\"path994\" /> </g> <g id=\"g996\" transform=\"translate(463.9456,181.5344)\" > <path d=\"m 0,0 3.139,-3.139 c 2.493,2.493 5.94,4.031 9.724,4.031 3.784,0 7.233,-1.538 9.726,-4.031 L 25.729,0 C 22.436,3.293 17.881,5.356 12.865,5.356 7.848,5.356 3.294,3.294 0.001,0\" id=\"path998\" /> </g> <g id=\"g1000\" transform=\"translate(469.5774,175.9019)\" > <path d=\"m 0,0 3.139,-3.139 c 2.262,2.257 5.924,2.257 8.186,0 L 14.464,0 C 12.547,1.918 9.944,2.993 7.232,2.985 4.432,2.985 1.876,1.846 0,0\" id=\"path1002\" /> </g> <g id=\"g1004\" transform=\"translate(487.95,176.7642)\" > <path d=\"m 0,0 c 1.662,-2.277 2.647,-5.078 2.647,-8.094 0,-7.601 -6.186,-13.787 -13.787,-13.787 -7.602,0 -13.787,6.186 -13.787,13.787 0,3.016 0.984,5.817 2.646,8.094 l -3.17,3.17 c -2.462,-3.108 -3.908,-7.017 -3.908,-11.264 0,-10.032 8.186,-18.218 18.219,-18.218 10.032,0 18.218,8.186 18.218,18.218 0,4.247 -1.477,8.156 -3.908,11.264 z\" id=\"path1006\" /> </g> </g> </g> </g> </svg> '}
+ owm:'<svg class=\"owmi\" viewBox=\"0 0 265 317\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\"> <g id=\"layer1\" transform=\"translate(-283.75,-175.10194)\"> <g id=\"g980\" transform=\"matrix(7.1406724,0,0,-7.1406724,-2988.7002,1566.7533)\" > <g id=\"g982\" > <g id=\"g988\" transform=\"translate(476.8096,171.6863)\" > <path d=\"m 0,0 c -1.666,0 -3.016,-1.35 -3.016,-3.016 0,-1.665 1.35,-3.016 3.016,-3.016 1.666,0 3.016,1.351 3.016,3.016 C 3.013,-1.351 1.665,-0.003 0,0\" id=\"path990\" /> </g> <g id=\"g992\" transform=\"translate(458.2832,187.1968)\" > <path d=\"m 0,0 3.139,-3.139 c 3.939,3.939 9.386,6.37 15.387,6.37 6.002,0 11.449,-2.432 15.388,-6.37 L 37.053,0 C 32.313,4.74 25.759,7.694 18.526,7.694 11.294,7.694 4.739,4.74 0,0\" id=\"path994\" /> </g> <g id=\"g996\" transform=\"translate(463.9456,181.5344)\" > <path d=\"m 0,0 3.139,-3.139 c 2.493,2.493 5.94,4.031 9.724,4.031 3.784,0 7.233,-1.538 9.726,-4.031 L 25.729,0 C 22.436,3.293 17.881,5.356 12.865,5.356 7.848,5.356 3.294,3.294 0.001,0\" id=\"path998\" /> </g> <g id=\"g1000\" transform=\"translate(469.5774,175.9019)\" > <path d=\"m 0,0 3.139,-3.139 c 2.262,2.257 5.924,2.257 8.186,0 L 14.464,0 C 12.547,1.918 9.944,2.993 7.232,2.985 4.432,2.985 1.876,1.846 0,0\" id=\"path1002\" /> </g> <g id=\"g1004\" transform=\"translate(487.95,176.7642)\" > <path d=\"m 0,0 c 1.662,-2.277 2.647,-5.078 2.647,-8.094 0,-7.601 -6.186,-13.787 -13.787,-13.787 -7.602,0 -13.787,6.186 -13.787,13.787 0,3.016 0.984,5.817 2.646,8.094 l -3.17,3.17 c -2.462,-3.108 -3.908,-7.017 -3.908,-11.264 0,-10.032 8.186,-18.218 18.219,-18.218 10.032,0 18.218,8.186 18.218,18.218 0,4.247 -1.477,8.156 -3.908,11.264 z\" id=\"path1006\" /> </g> </g> </g> </g> </svg> ',
+ pkg:svg('<path d="M12 3.5 20 7v5.5c0 4.6-3.4 8.1-8 9-4.6-.9-8-4.4-8-9V7l8-3.5Z"/><path d="M9 12l2.2 2.2L15.5 10"/>'),
+ ram:svg('<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 11v2M11 11v2M15 11v2"/>'),
+ netm:svg('<path d="M3 17h4l3-9 3.5 13L17 17h4"/>'),
+ disk:svg('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M12 4v2.6M12 17.4V20"/>'),
+ chip:svg('<rect x="6" y="6" width="12" height="12" rx="1.6"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/>'),
+ term:svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9.5 10 12l-3 2.5M13 15h4"/>'),
+ amlo:svg('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7.5 16 12 8 16.5"/>'),
+ lock:svg('<rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><path d="M12 14.5v2.5"/>'),
+ gauge:svg('<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4.5-6"/><circle cx="12" cy="18" r="1.4"/>'),
+ pkgopen:svg('<path d="M12 3.5 20 7l-8 3.5L4 7l8-3.5Z"/><path d="M4 7v5.5c0 4.6 3.4 8.1 8 9 4.6-.9 8-4.4 8-9V7"/><path d="M12 10.5V20"/>')}
 
 /* ===== state ===== */
-var cache={board:null,ifaces:[],st:{},wifi:null,dev:null,leases:null,load:'',uci:null,mm:null,srv:null};
+var cache={board:null,ifaces:[],st:{},wifi:null,dev:null,leases:null,load:'',uci:null,mm:null,srv:null,
+ netmon:null,disks:null,pkgs:null,vpn:{},ram:null,droid:null,amlo:null};
 var tab=(location.hash||'#home').slice(1);
 if(['home','wifi','net','modem','dev','sys'].indexOf(tab)<0)tab='home';
 var TABS=[['home','Beranda',IC.home],['wifi','WiFi',IC.wifi],['net','Jaringan',IC.net],
@@ -435,13 +502,38 @@ function screenModem(){
   '<div style="display:flex;gap:10px">'+
   '<button class="btn" style="flex:2;margin-top:0" data-act="andro">Buka dasbor AndroModem<span style="float:right;opacity:.7;font-weight:500">:49153</span></button>'+
   '<button class="btn ghost" style="flex:1;margin-top:0" data-act="amsvc">'+(am?'Hentikan':'Nyalakan')+'</button></div></div>';
- h+='<div class="card"><h3>Panel modem & proxy bawaan build</h3>'+
-  '<button class="act" data-web="modemband">'+IC.sig+'Preferred LTE/5G Bands<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="modeminfo">'+IC.dev+'Modeminfo (Network/HW/Setup)<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="3ginfo-lite">'+IC.net+'3GInfo (sinyal & koneksi)<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="openclash">'+IC.panel+'OpenClash<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="tailscale">'+IC.net+'Tailscale VPN<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="droidnet">'+IC.wifi+'DroidNet (USB HP)<span class="t">LuCI</span></button></div>';
+ /* openclash & tailscale: status ringkas dari uci/shell (tidak buka LuCI) */
+ h+=cardVPN();
+ /* modemband: atur preferensi LTE/5G modem Quectel (perintah AT/native), tanpa web */
+ h+='<div class="card"><h3>Preferred LTE/5G Bands</h3>'+
+  '<div class="row"><span class="k">Modem</span><span class="v">'+(mm?esc(kv['general.manufacturer']||'—')+' '+esc(kv['general.model']||''):'modem tidak terdeteksi')+'</span></div>'+
+  '<div class="fld"><label>Mode preferensi (contoh: LTE, NR5G, 4G/5G)</label><div class="in">'+
+  '<input id="mbPref" placeholder="contoh: LTE" maxlength="24"></div></div>'+
+  '<button class="btn ghost" data-act="mbsave">Terapkan ke modem</button>'+
+  '<div class="empty" style="padding-top:8px">Bekerja pada modem Quectel/Sierra via <b>mmcli</b> &amp; AT. Router tanpa modem USB diabaikan.</div></div>';
+ /* modeminfo: detail teknis modem (baca mmcli lengkap + uci modem) */
+ h+='<div class="card"><h3>Modeminfo</h3>'+rows(mm?[
+   ['Produsen',kv['general.manufacturer']],['Model',kv['general.model']],
+   ['Firmware',kv['general.firmware-revision']||kv['firmware.revision']],
+   ['Nomor seri',kv['general.device-identifier']],
+   ['Teknologi',kv['network.technology']||kv['3gpp.technology']],
+   ['Status jaringan',kv['network.state']],
+   ['Kekuatan sinyal',kv['network.signal.level']],
+   ['Kualitas',kv['network.quality']!=null?kv['network.quality']+'%':'—'],
+   ['Operator',kv['3gpp.operator-name']||kv['3gpp.operator']],
+   ['Kode operator',kv['3gpp.operator-code']],
+   ['APN aktif',kv['3gpp.apn']||kv['bearer.apn']],
+   ['Nomor telepon',kv['3gpp.number']||'—'],
+   ['Sistem',kv['3gpp.registration']||'—']]:[])+'</div>';
+ /* 3ginfo-lite: info koneksi + IMSI/IMEI + info modem jaringan */
+ h+='<div class="card"><h3>3GInfo &mdash; status koneksi</h3>'+rows(mm?[
+   ['IMSI',kv['3gpp.imsi']],['IMEI',kv['general.imei']],
+   ['Slot SIM',kv['3gpp.imei-sv']||'—'],['Tipe SIM',kv['3gpp.operator-name']?'SIM fisik':'—'],
+   ['Kanal/Cell ID',kv['3gpp.location-area-code']||'—'],
+   ['Status sambungan',kv['modem.state']]]:[])+
+  '<button class="btn ghost" data-act="rescan">Pindai ulang sinyal & status</button></div>';
+ /* droidnet: info tethering USB HP (baca interface, tidak buka LuCI) */
+ h+=cardDroid();
  return h}
 
 function screenSys(){
@@ -460,16 +552,15 @@ function screenSys(){
     '<button class="toggle '+(cache.srv[n]?'on':'')+'" data-srv="'+esc(n)+'"></button></div>'}).join('');
  }else h+='<div class="empty" style="padding:10px">Tidak ada layanan init.d yang terdeteksi.</div>';
  h+='</div>';
- h+='<div class="card"><h3>Panel aplikasi build (LuCI)</h3>'+
-  '<button class="act" data-web="amlogic">'+IC.sys+'Amlogic Menu / Install eMMC<span class="t">ophub</span></button>'+
-  '<button class="act" data-web="diskman">'+IC.dev+'Disk Manager<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="eqosplus">'+IC.net+'EQoS Plus<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="mac-todong">'+IC.dev+'MacTODONG (kontrol akses)<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="netmonitor">'+IC.sig+'Net Monitor<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="release-ram">'+IC.sys+'Release RAM<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="packages">'+IC.sys+'Manajer paket<span class="t">LuCI</span></button>'+
-  '<button class="act" data-web="ttyd">'+IC.panel+'Terminal web (ttyd)<span class="t">LuCI</span></button>'+
-  '<button class="act" data-act="web">'+IC.panel+'Semua halaman LuCI<span class="t">penuh</span></button></div>';
+ h+='<div class="card"><h3>Aplikasi build</h3>'+
+  '<button class="act" data-act="amlogic">'+IC.amlo+'Amlogic &mdash; info &amp; install eMMC<span class="t">native</span></button>'+
+  '<button class="act" data-act="diskman">'+IC.disk+'Disk Manager<span class="t">native</span></button>'+
+  '<button class="act" data-act="eqosplus">'+IC.gauge+'EQoS Plus<span class="t">native</span></button>'+
+  '<button class="act" data-act="mactodong">'+IC.lock+'MacTODONG (kontrol akses)<span class="t">native</span></button>'+
+  '<button class="act" data-act="netmon">'+IC.netm+'Net Monitor<span class="t">native</span></button>'+
+  '<button class="act" data-act="relram">'+IC.ram+'Release RAM<span class="t">native</span></button>'+
+  '<button class="act" data-act="packages">'+IC.pkg+'Manajer paket<span class="t">native</span></button>'+
+  '<button class="act" data-act="ttyd">'+IC.term+'Terminal (ttyd)<span class="t">status</span></button></div>';
  h+='<div class="card"><h3>Tindakan</h3>'+
   '<button class="act" data-act="reload">'+IC.wifi+'Muat ulang WiFi<span class="t">±5 dtk</span></button>'+
 
@@ -492,13 +583,128 @@ function loadAll(){
       return rpc('network.interface','status',{interface:i.interface}).
        then(function(s){cache.st[i.interface]=s})}))} ),
   sh(['uci','show','wireless']).then(function(s){cache.uci=parseUci(s)}),
-  loadModem(), loadSrv()
+  loadModem(), loadSrv(), loadDroid()
  ])}
 function parseKV(txt){
  var o={};
  (txt||'').split('\n').forEach(function(l){
   var m=l.match(/^([\w._-]+)\s*=\s*'?(.*?)'?\s*$/);if(m)o[m[1]]=m[2]});
  return o}
+/* ===== loader untuk kartu native ===== */
+function loadNetMon(){
+ return shell("cat /proc/net/dev | awk 'NR>2{print $1, $2, $3, $10, $11, $12}'").then(function(out){
+  cache.netmon=(out||'').trim().split('\n').filter(Boolean).map(function(l){
+   var p=l.trim().split(/\s+/);
+   return{name:(p[0]||'').replace(/:/,''),rx:+p[1]||0,tx:+p[2]||0,rxpk:p[3],txpk:p[4],err:p[5],
+    up:+p[1]>=0&&parseInt(p[2],10)>=0}})})
+  .catch(function(){cache.netmon=[]})}
+function loadDisks(){
+ return shell("lsblk -rno NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE,MODEL 2>/dev/null").then(function(out){
+  cache.disks=(out||'').trim().split('\n').filter(Boolean).map(function(l){
+   var p=l.trim().split(/\s+/);
+   return{name:p[0],size:p[1],type:p[2],mount:p[3]&&p[3]!=='-'?p[3]:'',fs:p[4],
+    model:(p.slice(5).join(' ')||'').replace(/\s+/g,' '),mounted:!!(p[3]&&p[3]!=='-')}})})
+  .catch(function(){cache.disks=[]})}
+function loadPkgs(){
+ return shell("opkg list-installed 2>/dev/null | wc -l; echo ---; "
+  +"opkg list-upgradable 2>/dev/null | wc -l").then(function(out){
+   var p=(out||'').split('\n');cache.pkgs={n:+p[0]||0,upgradable:+p[2]||0}})
+  .catch(function(){cache.pkgs=null})}
+function loadMacTodong(){
+ return sh(['sh','-c',
+  "[ -r /etc/config/mac-todong ] && uci show mac-todong || echo NOTINSTALLED"]).then(function(out){
+  var o=parseUci(out||''),macs=[],enabled=null,method=null;
+  if(out.indexOf('NOTINSTALLED')>=0){cache.mtd={installed:false,macs:[]};return}
+  enabled=(o['mac-todong']&&o['mac-todong'].enabled)==='1';
+  method=(o['mac-todong']&&o['mac-todong'].method)||'firewall';
+  Object.keys(o).forEach(function(sec){
+   var c=o[sec];
+   if(sec.indexOf('mac-todong.')!==0)return;
+   if(c.macaddr){macs.push({mac:c.macaddr,
+     hostname:(c.hostname||'').replace(/^'/,'').replace(/'$/,''),ip:c.ip||''})}});
+  /* varian beda skema: list MAC di option macaddr tipe list */
+  if(!macs.length){
+   Object.keys(o).forEach(function(sec){var c=o[sec];
+    if(sec.indexOf('mac-todong.')!==0)return;
+    for(var k in c){if(/^mac/.test(k)&&/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(c[k]))
+     macs.push({mac:c[k],hostname:'',ip:''})}})}
+  cache.mtd={installed:true,enabled:enabled,method:method,macs:macs}})
+  .catch(function(){cache.mtd={installed:false,macs:[]}})}
+function loadEqos(){
+ return sh(['sh','-c',
+  "[ -r /etc/config/eqosplus ] && uci show eqosplus || echo NOTINSTALLED"]).then(function(out){
+  if(out.indexOf('NOTINSTALLED')>=0){cache.eqos=null;return}
+  var o=parseUci(out||''),rules=[];
+  Object.keys(o).forEach(function(sec){var c=o[sec];
+   if(sec.indexOf('eqosplus.')!==0)return;
+   if(c.__type==='eqosplus')return;
+   if(c.mac||c.ip)rules.push({mac:c.mac||c.ip||'',down:c.download||'',up:c.upload||'',enable:c.enable})});
+  cache.eqos={enabled:(o['eqosplus']&&o['eqosplus'].enabled)==='1',
+   down:(o['eqosplus']&&o['eqosplus'].download)||'',up:(o['eqosplus']&&o['eqosplus'].upload)||'',
+   rules:rules}})
+  .catch(function(){cache.eqos=null})}
+function loadVPN(){
+ return Promise.allSettled([
+  sh(['sh','-c',
+   "[ -r /etc/config/openclash ] && uci show openclash || echo NOTINSTALLED"]),
+  sh(['sh','-c',
+   "which tailscale >/dev/null 2>&1 && tailscale status 2>/dev/null || echo NOTINSTALLED"])
+ ]).then(function(r){
+  var v={};
+  var oc=(r[0]&&r[0].value)||'';
+  if(oc.indexOf('NOTINSTALLED')<0){
+   var o=parseUci(oc),g=o['openclash']||{};
+   v.openclash={installed:true,
+    running:cache.srv?!!cache.srv.openclash:false,
+    mode:g.enhanced_mode||g['proxy_mode']||'',
+    server:(function(){var s='';
+     for(var k in o){if(/^openclash\./.test(k)&&o[k].__type==='servers'&&o[k].server){s=o[k].server;break}}
+     return s||''})()}}
+  else v.openclash={installed:false};
+  var ts=(r[1]&&r[1].value)||'';
+  if(ts.indexOf('NOTINSTALLED')<0){
+   var m=ts.match(/^(\S+)\s+(\S+)\s+(\S+)/m);
+   v.tailscale={installed:true,up:/active|connected/i.test(ts),
+    name:m?m[1]:'',ip:m?m[2]:(ts.match(/100\.\d+/)||[])[0]||''}}
+  else v.tailscale={installed:false};
+  cache.vpn=v}).catch(function(){cache.vpn={}})}
+function loadDroid(){
+ return shell("ip -o link show 2>/dev/null | grep -iE 'rndis|cdc|ecm|usb' | awk -F': ' '{print $2}' | tr -d '@'").then(function(out){
+  var names=(out||'').trim().split('\n').map(function(x){return x.trim()}).filter(Boolean);
+  if(!names.length){cache.droid=null;return}
+  return shell("ip -o addr show 2>/dev/null | grep -iE 'rndis|cdc|ecm|usb' | awk '{print $2, $4}'").then(function(a){
+   var k={};(a||'').split('\n').forEach(function(l){
+    var p=l.trim().split(/\s+/);if(p.length>1)k[p[0]]=p[1].split('/')[0]});
+   return shell("cat /proc/net/dev").then(function(st){
+    var st2={};(st||'').split('\n').forEach(function(l){
+     var p=l.trim().split(/[:\s]+/);
+     if(p.length>10)st2[p[0]]={rx:+p[1]||0,tx:+p[9]||0}});
+    cache.droid=names.map(function(n){var t=st2[n]||{};
+     return{name:n,up:true,ip:k[n]||'',rx:t.rx||0,tx:t.tx||0,
+      mac:'USB tethering',driver:/rndis/.test(n)?'rndis':'usb-net'}})})})})
+  .catch(function(){cache.droid=null})}
+function loadAmlogic(){
+ return sh(['sh','-c',
+  "cat /proc/device-tree/model 2>/dev/null | tr -d '\0'; "
+  +"echo '|'; ls -d /dev/mmcblk* /dev/nand* 2>/dev/null | tr '\n' ' '; "
+  +"echo '|'; ls /usr/sbin/openwrt-install* /sbin/install* 2>/dev/null | head -1"]).then(function(out){
+  var p=(out||'').split('|').map(function(x){return x.trim()});
+  var soc=p[0]||'';
+  if(!soc||!/meson|amlogic|s9|g12|sm1/i.test(soc)){cache.amlo=null;return}
+  var emmc=/mmcblk\d$/.test(p[1].trim());
+  cache.amlo={model:soc,soc:soc.replace(/^.*\//,''),
+   emmc:emmc?'terdeteksi ('+p[1].trim().split(' ')[0]+')':'tidak ada',
+   root:(p[1].trim().split(' ')[0]||'—'),boot:/emmc|mmc/i.test(p[1])?'eMMC':'SD/USB',
+   uboot:'—',install:p[2]||''}})
+  .catch(function(){cache.amlo=null})}
+function loadTtyd(){
+ return sh(['sh','-c',
+  "[ -x /etc/init.d/ttyd ] && { /etc/init.d/ttyd running 2>/dev/null && echo UP || echo DOWN; } || echo NONE"]).then(function(out){
+  out=(out||'').trim();
+  if(out==='NONE'){cache.ttyd=null;return}
+  cache.ttyd={up:out==='UP',port:7681}})
+  .catch(function(){cache.ttyd=null})}
+
 function loadModem(){
  return sh(['mmcli','-L']).then(function(out){
   if(!out||out.indexOf('not found')>=0||out.indexOf('no modems')>=0){cache.mm=null;return}
@@ -527,33 +733,372 @@ function uciApplySec(sec,vals,extra){
  if(!parts.length){msg('Tidak ada perubahan');return Promise.resolve()}
  parts.push('uci commit wireless','uci reapply wireless');
  return shell(parts.join(' && ')).then(function(){msg('Tersimpan & diterapkan')}).
-  catch(function(){return shell(parts.slice(0,-1).concat(['uci commit wireless','/etc/init.d/network reload']).join(' && ')).
-   then(function(){msg('Tersimpan (reload penuh)')})})}
+  catch(function(){return shell(parts.slice(0,-1).concat(['uci commit wireless','/etc/init.d/network reload']).join(' && ')).then(function(){msg('Tersimpan (reload penuh)')})})}
 
 function collect(sec){
  var vals={};
  document.querySelectorAll('[data-sec="'+sec+'"]').forEach(function(inp){vals[inp.dataset.opt]=inp.value});
  return vals}
 
+/* ================= KARTU NATIVE (pengganti buka-luCI) =================
+ * Prinsip: semua aksi dikerjakan via rpc ubus / 'file exec' di dalam app.
+ * Tidak ada satu pun tombol yang membuka halaman web LuCI.
+ */
+
+/* ---- Release RAM ---- */
+function cardRelRam(){
+ var b=cache.board,m=cache.ram;
+ var free=b?b.memory.free+b.memory.buffers+b.memory.cached:0;
+ var used=b?b.memory.total-free:0;
+ var h='<div class="card"><h3>Release RAM</h3>'+
+  '<div class="grid2"><div class="stat"><div class="v">'+(m?human(m.freed):'—')+'</div><div class="l">Dibebaskan terakhir</div></div>'+
+  '<div class="stat"><div class="v">'+(b?human(b.memory.total):'—')+'</div><div class="l">Total RAM</div></div></div>'+
+  rows([['Terpakai',b?human(used)+' ('+pct(used,b.memory.total)+'%)':'—'],
+   ['Bebas + cache',b?human(free):'—'],
+   ['Cache/buffer',b?human((b.memory.buffers||0)+(b.memory.cached||0)):'—']])+
+  '<button class="btn" data-act="relramgo">'+IC.ram+'Bebaskan cache &amp; buffer</button>'+
+  '<div class="empty" style="padding-top:8px">echo 3 &gt; /proc/sys/vm/drop_caches — aman, router tetap stabil.</div></div>';
+ return h}
+
+/* ---- Manajer paket (opkg) ---- */
+function cardPackages(){
+ var p=cache.pkgs,h='';
+ h+='<div class="card"><h3>Manajer paket</h3>';
+ if(!p){h+='<div class="empty" style="padding:12px 6px">Memuat daftar paket…</div></div>';return h}
+ h+='<div class="grid2"><div class="stat"><div class="v">'+p.n+'</div><div class="l">Terpasang</div></div>'+
+  '<div class="stat"><div class="v">'+(p.upgradable||0)+'</div><div class="l">Bisa ditingkatkan</div></div></div>'+
+  '<div class="fld"><label>Cari paket (terpasang atau yang tersedia)</label><div class="in">'+
+  '<input id="pkQ" placeholder="mis. openclash, vim, tcpdump" autocomplete="off"></div></div>'+
+  '<pre class="log" id="pkOut" style="display:none"></pre>'+
+  '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
+  '<button class="btn ghost" style="flex:1;margin-top:0" data-act="pkupdate">Perbarui daftar</button>'+
+  '<button class="btn ghost" style="flex:1;margin-top:0" data-act="pkgosearch">Cari</button>'+
+  '<button class="btn" style="flex:1;margin-top:0" data-act="pkgoinstall">Pasang</button></div>'+
+  '<div class="empty" style="padding-top:8px">Nama paket di kolom atas. <b>Perbarui daftar</b> sekali sebelum memasang paket baru.</div></div>';
+ return h}
+
+/* ---- MacTODONG: kontrol akses MAC (firewall/nftables) ---- */
+function cardMacTodong(){
+ var m=cache.mtd,h='';
+ h+='<div class="card"><h3>Kontrol akses (MacTODONG)</h3>';
+ if(!m){h+='<div class="empty" style="padding:12px 6px">Memuat daftar blokir…</div></div>';return h}
+ h+=rows([['Layanan',m.enabled===true?'aktif':(m.enabled===false?'mati':'tidak terpasang')],
+  ['Aturan firewall',m.method||'—'],['Jumlah MAC diblokir',m.macs.length+' perangkat']]);
+ h+='<div class="sub">MAC yang diblokir</div>';
+ if(!m.macs.length)h+='<div class="empty" style="padding:10px 0 12px">Belum ada MAC diblokir.</div>';
+ else h+=m.macs.map(function(x,i){
+   var host=(x.hostname||'').trim();
+   return '<div class="mcard"><div style="min-width:0;flex:1"><div class="mc">'+esc(x.mac)+'</div>'+
+    '<div class="ip">'+(host?esc(host)+' · ':'')+' '+esc(x.ip||'')+'</div></div>'+
+    '<button class="kbtn" data-mtdrm="'+i+'">Buka</button></div>'}).join('');
+ h+='<div class="fld" style="margin-top:12px"><label>Tambah MAC untuk diblokir</label><div class="in">'+
+  '<input id="mtdAdd" placeholder="AA:BB:CC:DD:EE:FF" autocomplete="off"></div></div>'+
+  '<div style="display:flex;gap:10px"><button class="btn" style="flex:1;margin-top:0" data-act="mtdadd">Blokir MAC</button>'+
+  '<button class="btn ghost" style="flex:1;margin-top:0" data-act="mtdtoggle">'+(m.enabled?'Matikan':'Nyalakan')+'</button></div></div>';
+ return h}
+
+/* ---- EQoS Plus: limit bandwidth per MAC/IP ---- */
+function cardEqos(){
+ var e=cache.eqos,h='';
+ h+='<div class="card"><h3>EQoS Plus &mdash; batas kecepatan</h3>';
+ if(!e){h+='<div class="empty" style="padding:12px 6px">Memuat pengaturan…</div></div>';return h}
+ h+=rows([['Layanan',e.enabled?'aktif':'mati'],
+  ['Kecepatan total turun',e.down?e.down+' Mbit':'—'],
+  ['Kecepatan total naik',e.up?e.up+' Mbit':'—'],
+  ['Aturan perangkat',e.rules.length+' perangkat']]);
+ h+='<div class="sub">Aturan per perangkat</div>';
+ if(!e.rules.length)h+='<div class="empty" style="padding:10px 0 12px">Belum ada aturan. Tambah MAC di bawah.</div>';
+ else h+=e.rules.map(function(r,i){
+   return '<div class="mcard"><div style="min-width:0;flex:1"><div class="mc">'+esc(r.mac)+'</div>'+
+    '<div class="ip">↓ '+esc(r.down||'0')+' Mbit · ↑ '+esc(r.up||'0')+' Mbit</div></div>'+
+    '<button class="kbtn" data-eqdel="'+i+'">Hapus</button></div>'}).join('');
+ h+='<div class="fld" style="margin-top:12px"><label>MAC / IP perangkat</label><div class="in">'+
+  '<input id="eqMac" placeholder="AA:BB:CC:DD:EE:FF atau 192.168.1.50" autocomplete="off"></div></div>'+
+  '<div style="display:flex;gap:8px"><div class="fld" style="flex:1;margin-bottom:0"><label>↓ Mbit</label>'+
+  '<div class="in"><input class="inum" id="eqDown" inputmode="numeric" placeholder="5"></div></div>'+
+  '<div class="fld" style="flex:1;margin-bottom:0"><label>↑ Mbit</label>'+
+  '<div class="in"><input class="inum" id="eqUp" inputmode="numeric" placeholder="2"></div></div></div>'+
+  '<button class="btn" data-act="eqadd">Tambah aturan</button></div>';
+ return h}
+
+/* ---- Net Monitor: /proc/net/dev + ip -s link ---- */
+function cardNetMon(){
+ var n=cache.netmon,h='';
+ h+='<div class="card"><h3>Net Monitor</h3>';
+ if(!n){h+='<div class="empty" style="padding:12px 6px">Mengambil statistik antarmuka…</div></div>';return h}
+ n.forEach(function(x){
+  h+='<div class="ifc"><div class="nm">'+esc(x.name)+
+   '<span class="tag '+(x.up?'g':'r')+'">'+(x.up?'NAIK':'MATI')+'</span></div>'+
+   rows([['Turun',human(x.rx)],['Naik',human(x.tx)],
+    ['Paket turun',x.rxpk],['Paket naik',x.txpk],
+    ['Error',x.err]])+'</div>'});
+ h+='<button class="btn ghost" data-act="nmrefresh">'+IC.netm+'Ambil ulang statistik</button></div>';
+ return h}
+
+/* ---- Disk Manager ---- */
+function cardDiskMan(){
+ var d=cache.disks,h='';
+ h+='<div class="card"><h3>Disk Manager</h3>';
+ if(!d){h+='<div class="empty" style="padding:12px 6px">Memeriksa penyimpanan…</div></div>';return h}
+ if(!d.length)h+='<div class="empty" style="padding:10px 0 12px">Tidak ada penyimpanan terpasang.</div>';
+ else d.forEach(function(x){
+  h+='<div class="ifc"><div class="nm">'+esc(x.name)+' <small style="color:var(--t3);font-weight:500">'+esc(x.model||'')+'</small>'+
+   '<span class="tag '+(x.mounted?'g':'')+'">'+(x.mounted?'TERPASANG':'BELUM')+'</span></div>'+
+   rows([['Ukuran',x.size],['Tipe',x.type],
+    ['Titik kait',x.mount||'—'],['Filesystem',x.fs||'—']])+'</div>'});
+ h+='<button class="btn ghost" data-act="dmrefresh">'+IC.disk+'Pindai ulang disk</button></div>';
+ return h}
+
+/* ---- Amlogic: info & install eMMC ---- */
+function cardAmlogic(){
+ var a=cache.amlo,h='';
+ h+='<div class="card"><h3>Amlogic</h3>';
+ if(!a){h+='<div class="empty" style="padding:12px 6px">Perangkat Amlogic tidak terdeteksi (hanya untuk TV box Amlogic).</div></div>';return h}
+ h+=rows([['SoC',a.soc],['Model',a.model],['eMMC',a.emmc],
+  ['Penyimpanan',a.root],['Versi U-Boot',a.uboot||'—'],['Tipe boot',a.boot||'—']]);
+ h+='<div class="sub">Install ke eMMC</div>';
+ if(!a.emmc)h+='<div class="empty" style="padding:10px 0 12px">eMMC tidak ditemukan — tidak bisa install.</div>';
+ else{
+  h+='<div class="fld"><label>Konfirmasi: tulis image OpenWrt ke eMMC</label>'+
+   '<div class="in"><input id="amloKey" placeholder="ketik: install" autocomplete="off"></div></div>'+
+   '<button class="btn d" data-act="amloinstall">'+IC.amlo+'Install OpenWrt ke eMMC</button>'+
+   '<div class="empty" style="padding-top:8px">Berbahaya: isi eMMC akan ditimpa. Router reboot otomatis. Ketik <b>install</b> sebagai konfirmasi.</div>'}
+ h+='</div>';
+ return h}
+
+/* ---- OpenClash / Tailscale: status (tanpa buka LuCI) ---- */
+function cardVPN(){
+ var v=cache.vpn,h='';
+ h+='<div class="card"><h3>Proksi &amp; VPN</h3>';
+ h+=vpnRow('OpenClash',v&&v.openclash,[
+  ['Mode',v&&v.openclash?(v.openclash.mode||'—'):'—'],
+  ['Server',v&&v.openclash?(v.openclash.server||'—'):'—'],
+  ['Proses',v&&v.openclash?(v.openclash.running?'berjalan':'berhenti'):'tidak terpasang']]);
+ h+=vpnRow('Tailscale',v&&v.tailscale,[
+  ['Status',v&&v.tailscale?(v.tailscale.up?'terhubung':(v.tailscale.installed?'keluar':'tidak terpasang')):'—'],
+  ['IP tailnet',v&&v.tailscale?v.tailscale.ip:'—'],
+  ['Hostname',v&&v.tailscale?v.tailscale.name:'—']]);
+ h+='</div>';
+ return h}
+function vpnRow(name,info,rows){
+ var installed=!!(info&&info.installed!==false),on=!!(info&&(info.running||info.up));
+ return '<div class="ifc"><div class="nm">'+name+
+  '<span class="tag '+(on?'g':installed?'r':'')+'">'+(on?'AKTIF':installed?'MATI':'TIDAK TERPASANG')+'</span></div>'+
+  rows.map(function(r){return'<div class="row"><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1]==null||r[1]===''?'—':r[1])+'</span></div>'}).join('')+'</div>'}
+
+/* ---- DroidNet: info USB tethering HP ---- */
+function cardDroid(){
+ var d=cache.droid,h='';
+ h+='<div class="card"><h3>DroidNet (USB HP)</h3>';
+ if(!d){h+='<div class="empty" style="padding:12px 6px">Tidak ada antarmuka USB tethering (rndis/cdc-ether/ecm). Sambungkan HP &amp; nyalakan USB tethering.</div></div>';return h}
+ h+=d.map(function(x){
+  return '<div class="ifc"><div class="nm">'+esc(x.name)+'<span class="tag '+(x.up?'g':'r')+'">'+(x.up?'NAIK':'MATI')+'</span></div>'+
+   rows([['MAC',x.mac||'—'],['IPv4',x.ip||'—'],
+    ['Turun / Naik',human(x.rx)+' / '+human(x.tx)],
+    ['Driver',x.driver||'—']])+'</div>'}).join('');
+ h+='<button class="btn ghost" data-act="nmrefresh">'+IC.wifi+'Ambil ulang info</button></div>';
+ return h}
+
+/* ---- ttyd: status server terminal (read-only; tidak ditarik jadi terminal emulator) ---- */
+function cardTtyd(){
+ var t=cache.ttyd;
+ var on=!!(t&&t.up);
+ return '<div class="card"><h3>Terminal web (ttyd)</h3>'+
+  rows([['Layanan',t?(on?'berjalan':'berhenti'):'tidak terpasang'],
+   ['Port',t&&t.port?t.port:'—'],
+   ['Alamat',on?'http://'+(cache.board?cache.board.hostname||'router':'router')+':'+(t?t.port:7681):'—']])+
+  '<div class="empty" style="padding-top:8px">Terminal emulator penuh tidak bisa ditarik ke app ini. Nyalakan/matikan dari daftar layanan di bawah.</div></div>'}
+
+
+
+/* ===== handler & aksi kartu native (pengganti tombol buka-LuCI) ===== */
+function bindNative(){
+ document.querySelectorAll('[data-mtdrm]').forEach(function(b){b.addEventListener('click',function(){
+  var i=+b.dataset.mtdrm,m=cache.mtd;if(!m||!m.macs[i])return;
+  var mac=m.macs[i].mac;
+  askConfirm('Buka blokir <b>'+esc(mac)+'</b>? Perangkat bisa konek lagi.',function(yn){
+   if(!yn)return;
+   /* hapus semua section mac-todong yang memuat MAC ini */
+   mtdShell("uci show mac-todong | grep -F '"+mac+"' | cut -d= -f1 | cut -d. -f1,2 | sort -u | "
+    +"while read s; do uci -q delete \"$s\"; done; uci commit mac-todong; "
+    +"/etc/init.d/mac-todong restart 2>/dev/null || /etc/init.d/firewall restart 2>/dev/null",
+    'MAC dibuka: '+mac,'Gagal membuka blokir',function(){loadMacTodong().then(function(){render();refreshSheet('mactodong')})})})})});
+ document.querySelectorAll('[data-eqdel]').forEach(function(b){b.addEventListener('click',function(){
+  var i=+b.dataset.eqdel,e=cache.eqos;if(!e||!e.rules[i])return;
+  var mac=e.rules[i].mac;
+  askConfirm('Hapus aturan limit untuk <b>'+esc(mac)+'</b>?',function(yn){
+   if(!yn)return;
+   mtdShell("uci show eqosplus | grep -F '"+mac+"' | cut -d= -f1 | cut -d. -f1,2 | sort -u | "
+    +"while read s; do uci -q delete \"$s\"; done; uci commit eqosplus; "
+    +"/etc/init.d/eqosplus restart 2>/dev/null",
+    'Aturan dihapus','Gagal menghapus aturan',function(){loadEqos().then(function(){render();refreshSheet('eqos')})})})})});
+}
+/* eksekusi shell uci + toast + reload; dipakai ulang oleh semua aksi uci native */
+function mtdShell(cmd,okMsg,errMsg,after){
+ shell(cmd).then(function(){
+   msg(okMsg);if(after)after()}).
+  catch(function(){msg(errMsg)})}
+/* refresh isi overlay tanpa kehilangan posisi scroll */
+function refreshSheet(kind){
+ if(!_ov2)return;
+ var b=_ov2.querySelector('#ovBody');if(!b)return;
+ var top=_ov2.querySelector('.dlg').scrollTop;
+ b.innerHTML=sheetBody(kind);
+ bind();drawAllCharts();
+ _ov2.querySelector('.dlg').scrollTop=top}
+/* isi overlay per jenis kartu */
+function sheetBody(kind){
+ if(kind==='relram')return cardRelRam();
+ if(kind==='packages')return cardPackages();
+ if(kind==='mactodong')return cardMacTodong();
+ if(kind==='eqos')return cardEqos();
+ if(kind==='netmon')return cardNetMon();
+ if(kind==='diskman')return cardDiskMan();
+ if(kind==='amlogic')return cardAmlogic();
+ if(kind==='ttyd')return cardTtyd();
+ return '<div class="empty">—</div>'}
+/* buka overlay + muat data (semua di dalam app, tidak buka web LuCI) */
+function openNative(kind,title){
+ openSheet(title);
+ var loader=null;
+ if(kind==='relram')loader=function(){cache.ram=cache.ram||{};return Promise.resolve()};
+ if(kind==='netmon')loader=loadNetMon;
+ if(kind==='diskman')loader=loadDisks;
+ if(kind==='packages')loader=loadPkgs;
+ if(kind==='mactodong')loader=loadMacTodong;
+ if(kind==='eqos')loader=loadEqos;
+ if(kind==='amlogic')loader=loadAmlogic;
+ if(kind==='ttyd')loader=loadTtyd;
+ if(!loader){refreshSheet(kind);return}
+ loader().then(function(){refreshSheet(kind)}).catch(function(){if(_ov2){var b=_ov2.querySelector('#ovBody .empty');
+
+   if(b)b.textContent='Gagal memuat dari router.'}})}
+/* ---- release RAM: echo 3 > drop_caches ---- */
+function doRelRam(){
+ sh(['sh','-c',
+  "F=$(awk '/MemAvailable/{print int($2/1024)}' /proc/meminfo); "
+  +"echo 3 > /proc/sys/vm/drop_caches; sleep 1; "
+  +"A=$(awk '/MemAvailable/{print int($2/1024)}' /proc/meminfo); "
+  +"echo \"$((A-F))\""]).then(function(out){
+
+  var kb=parseInt((out||'').trim().split('\n').pop(),10);
+  if(!isNaN(kb))cache.ram={freed:kb*1024};
+  msg('Cache dibebaskan'+(!isNaN(kb)?': '+human(Math.abs(kb)*1024):''));
+  refresh2()}).catch(function(){msg('Gagal melepaskan RAM')})}
+
+/* ---- opkg ---- */
+function opkgUpdate(btn){
+ btn.disabled=true;btn.textContent='Memperbarui…';
+ sh(['opkg','update']).then(function(out){
+  btn.disabled=false;btn.textContent='Perbarui daftar';
+  var m=(out||'').match(/Updated\s+(\d+)/);
+  msg(m?'Daftar paket diperbarui ('+m[1]+' sumber)':'Daftar paket diperbarui');
+  loadPkgs().then(function(){refreshSheet('packages')})}).catch(function(){btn.disabled=false;btn.textContent='Perbarui daftar';msg('opkg update gagal')})}
+
+function opkgSearch(){
+ var inp=$('#pkQ');var q=inp?inp.value.trim():'';
+ if(!q){msg('Isi nama paket dulu');return}
+ var o=$('#pkOut');
+ sh(['sh','-c',
+   "echo '== terpasang:'; opkg list-installed 2>/dev/null | grep -i '"+q.replace(/'/g,"'\\''")+"' | head -20; "
+  +"echo '== tersedia:'; opkg list 2>/dev/null | grep -i '"+q.replace(/'/g,"'\\''")+"' | head -20"]).then(function(out){
+
+  if(o){o.style.display='block';o.textContent=(out||'').trim()||'tidak ditemukan'}}).catch(function(){msg('Pencarian gagal')})}
+
+function opkgInstall(){
+ var inp=$('#pkQ');var q=inp?inp.value.trim():'';
+ if(!q){msg('Isi nama paket dulu');return}
+ askConfirm('Pasang paket <b>'+esc(q)+'</b> dari repositori?',function(yn){
+  if(!yn)return;
+  var o=$('#pkOut');
+  sh(['opkg','install',q]).then(function(out){
+   if(o){o.style.display='block';o.textContent=(out||'').trim()}
+   msg('Paket dipasang');loadPkgs().then(function(){refreshSheet('packages')})}).
+  catch(function(){msg('Gagal memasang paket')})})}
+/* ---- mac-todong: tambah / toggle ---- */
+function mtdAdd(){
+ var inp=$('#mtdAdd');var mac=inp?inp.value.trim():'';
+ if(!/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(mac)){msg('Format MAC salah');return}
+ askConfirm('Blokir <b>'+esc(mac)+'</b>? Perangkat tidak bisa akses internet.',function(yn){
+  if(!yn)return;
+  var m=mac.replace(/'/g,"'\\''");
+  mtdShell("uci -q add mac-todong rule >/dev/null 2>&1; "
+   +"uci -q set mac-todong.@rule[-1].macaddr='"+m+"'; uci commit mac-todong; "
+   +"/etc/init.d/mac-todong restart 2>/dev/null || /etc/init.d/firewall restart 2>/dev/null",
+   'MAC diblokir: '+mac,'Gagal memblokir MAC',
+   function(){loadMacTodong().then(function(){render();refreshSheet('mactodong')})})})}
+function mtdToggle(){
+ var m=cache.mtd;if(!m||!m.installed){msg('MacTODONG tidak terpasang');return}
+ mtdShell("uci -q set mac-todong.@rule[0].enabled='"+(m.enabled?'0':'1')+"'; uci commit mac-todong; "
+  +"/etc/init.d/mac-todong restart 2>/dev/null || /etc/init.d/firewall restart 2>/dev/null",
+  'Kontrol akses '+(m.enabled?'dimatikan':'dinyalakan'),'Gagal mengubah layanan',
+  function(){loadMacTodong().then(function(){render();refreshSheet('mactodong')})})}
+/* ---- eqosplus: tambah aturan ---- */
+function eqAdd(){
+ var mi=$('#eqMac'),di=$('#eqDown'),ui=$('#eqUp');
+ var mac=mi?mi.value.trim():'';
+ var down=(di?di.value.trim():'')||'0',up=(ui?ui.value.trim():'')||'0';
+ if(!mac){msg('Isi MAC atau IP');return}
+ if(!/^([0-9]{1,3}\.){3}[0-9]{1,3}$|^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(mac)){msg('Format MAC/IP salah');return}
+ var m=mac.replace(/'/g,"'\\''");
+ mtdShell("uci -q add eqosplus device; "
+  +"uci -q set eqosplus.@device[-1].mac='"+m+"'; "
+  +"uci -q set eqosplus.@device[-1].download='"+down+"'; "
+  +"uci -q set eqosplus.@device[-1].upload='"+up+"'; "
+  +"uci -q set eqosplus.@device[-1].enable='1'; "
+  +"uci commit eqosplus; /etc/init.d/eqosplus restart 2>/dev/null",
+  'Aturan ditambah','Gagal menambah aturan',
+  function(){loadEqos().then(function(){render();refreshSheet('eqos')})})}
+/* ---- amlogic: install eMMC ---- */
+function amloInstall(){
+ var inp=$('#amloKey');var k=inp?inp.value.trim():'';
+ if(k!=='install'){msg('Ketik "install" untuk konfirmasi');return}
+ askConfirm('Install OpenWrt ke eMMC? Router reboot otomatis. Hentikan sekarang jika ragu.',function(yn){
+  if(!yn)return;
+  msg('Memulai install eMMC…');
+  sh(['sh','-c',
+    "[ -x /usr/sbin/openwrt-install ] && exec /usr/sbin/openwrt-install -d mmcblk0; "
+   +"[ -x /sbin/openwrt-install ] && exec /sbin/openwrt-install -d mmcblk0; "
+   +"amlogic install-amlogic 2>/dev/null || echo NOTFOUND"]).then(function(out){
+
+    if((out||'').indexOf('NOTFOUND')>=0)msg('Script install amlogic tidak ditemukan');
+    else msg('Install dimulai — tunggu reboot')}).catch(function(){msg('Install gagal')})})}
+/* ---- modemband: terapkan preferensi via mmcli ---- */
+/* ---- modemband: terapkan preferensi via mmcli/AT ---- */
+function mbSave(){
+ var v=($('#mbPref')||{value:''}).value.trim();
+ var mm=cache.mm;
+ if(!mm||!mm.idx){msg('Tidak ada modem terdeteksi');return}
+ if(!v){msg('Isi preferensi (mis. LTE)');return}
+ var pref=v.replace(/[^0-9A-Za-z/-]/g,'');
+ askConfirm('Atur preferensi jaringan modem ke <b>'+esc(pref)+'</b>?',function(yn){
+  if(!yn)return;
+  sh(['sh','-c',
+    "mmcli -m "+mm.idx+" --set-preferred-technologies='"+pref+"' 2>/dev/null "
+   +"|| mmcli -m "+mm.idx+" --set-current-bands='"+pref+"' 2>/dev/null "
+   +"|| echo NOTSUPPORTED"]).then(function(out){
+
+    if((out||'').indexOf('NOTSUPPORTED')>=0)msg('Modem tidak mendukung pengaturan ini');
+    else{msg('Preferensi diterapkan');loadModem().then(function(){render()})}}).catch(function(){msg('Gagal mengatur modem')})})}
+
+
+
+
 function bind(){
  document.querySelectorAll('[data-radio]').forEach(function(t){t.addEventListener('click',function(){
   var k=t.dataset.radio,up=!t.classList.contains('on');t.classList.toggle('on',up);
-  rpc('network.wireless',up?'up':'down',{interface:k}).
-   then(function(){msg('Radio '+k+(up?' aktif':' dimatikan'));setTimeout(refresh2,1600)}).
-   catch(function(){t.classList.toggle('on',!up);msg('Gagal mengubah radio')})})});
+  rpc('network.wireless',up?'up':'down',{interface:k}).then(function(){msg('Radio '+k+(up?' aktif':' dimatikan'));setTimeout(refresh2,1600)}).catch(function(){t.classList.toggle('on',!up);msg('Gagal mengubah radio')})})});
  document.querySelectorAll('[data-saveiface]').forEach(function(b){b.addEventListener('click',function(){
   if(b.disabled)return;b.disabled=true;b.textContent='Menyimpan…';
-  uciApplySec(b.dataset.saveiface,collect(b.dataset.saveiface)).
-   then(function(){b.textContent='Simpan perubahan';refresh2()}).
-   catch(function(){b.textContent='Simpan perubahan';msg('Gagal menyimpan')}).
+  uciApplySec(b.dataset.saveiface,collect(b.dataset.saveiface)).then(function(){b.textContent='Simpan perubahan';refresh2()}).catch(function(){b.textContent='Simpan perubahan';msg('Gagal menyimpan')}).
    finally(function(){b.disabled=false})})});
  document.querySelectorAll('[data-savedev]').forEach(function(b){b.addEventListener('click',function(){
   var sec=b.dataset.savedev,vals=collect(sec);
   var off=document.querySelector('[data-devoff="'+sec+'"]');
   if(off)vals.disabled=off.classList.contains('on')?'1':'0';
   if(b.disabled)return;b.disabled=true;b.textContent='Menyimpan…';
-  uciApplySec(sec,vals).then(function(){b.textContent='Simpan radio';refresh2()}).
-   catch(function(){b.textContent='Simpan radio';msg('Gagal menyimpan')}).
+  uciApplySec(sec,vals).then(function(){b.textContent='Simpan radio';refresh2()}).catch(function(){b.textContent='Simpan radio';msg('Gagal menyimpan')}).
+
    finally(function(){b.disabled=false})})});
  document.querySelectorAll('[data-devoff]').forEach(function(t){t.addEventListener('click',function(){
   t.classList.toggle('on')})});
@@ -577,18 +1122,17 @@ function doKick(x){
   sh(['ping','-c','3','-w','8',host2]).then(function(out){
    pg.textContent='Ping 3×';var o=$('#pingOut');o.style.display='block';o.textContent=out||'(kosong)'}).
   catch(function(){pg.textContent='Ping 3×';msg('Ping gagal')})});
- document.querySelectorAll('[data-web]').forEach(function(a){a.addEventListener('click',function(){
-  try{App.openPage(a.dataset.web)}catch(e){msg('Tidak bisa membuka halaman')}})});
+
  document.querySelectorAll('[data-srv]').forEach(function(t){t.addEventListener('click',function(){
   var n=t.dataset.srv,want=!t.classList.contains('on');t.classList.toggle('on',want);
   sh(['/etc/init.d/'+n,want?'enable':'disable']).catch(function(){});
   sh(['/etc/init.d/'+n,want?'start':'stop']).then(function(){
-    msg(n+(want?' dinyalakan':' dimatikan'));setTimeout(refresh2,1500)}).
-   catch(function(){t.classList.toggle('on',!want);msg('Gagal mengubah '+n)})})});
+    msg(n+(want?' dinyalakan':' dimatikan'));setTimeout(refresh2,1500)}).catch(function(){t.classList.toggle('on',!want);msg('Gagal mengubah '+n)})})});
+
  var rs=document.querySelector('[data-act="rescan"]');
  if(rs)rs.addEventListener('click',function(){rs.textContent='Memindai…';
-  loadModem().then(function(){rs.textContent='Pindai ulang sinyal & status';render()}).
-   catch(function(){rs.textContent='Pindai ulang sinyal & status'})});
+  loadModem().then(function(){rs.textContent='Pindai ulang sinyal & status';render()}).catch(function(){rs.textContent='Pindai ulang sinyal & status'})});
+
  document.querySelectorAll('[data-act]').forEach(function(a){a.addEventListener('click',function(){
   var k=a.dataset.act;
   if(k==='rescan')return;
@@ -596,17 +1140,40 @@ function doKick(x){
   if(k==='amsvc'){var on=cache.srv&&cache.srv.andromodem;
    sh(['/etc/init.d/andromodem',on?'stop':'start']).then(function(){msg('AndroModem '+(on?'dihentikan':'dinyalakan'));setTimeout(refresh2,1500)}).
     catch(function(){msg('Layanan andromodem tidak ada')});return}
-  if(k==='web')return App.openWeb();
+
   if(k==='host')return App.changeHost();
   if(k==='out')return App.goLogin();
+  /* --- kartu native (semua dikerjakan di app, tanpa buka LuCI) --- */
+  if(k==='relram')return openNative('relram','Release RAM');
+  if(k==='relramgo')return doRelRam();
+  if(k==='packages')return openNative('packages','Manajer paket');
+  if(k==='pkgosearch')return opkgSearch();
+  if(k==='pkgoinstall')return opkgInstall();
+  if(k==='pkupdate'){var pu=this;return opkgUpdate(pu)}
+  if(k==='mactodong')return openNative('mactodong','Kontrol akses (MacTODONG)');
+  if(k==='mtdadd')return mtdAdd();
+  if(k==='mtdtoggle')return mtdToggle();
+  if(k==='eqosplus')return openNative('eqos','EQoS Plus');
+  if(k==='eqadd')return eqAdd();
+  if(k==='netmon')return openNative('netmon','Net Monitor');
+  if(k==='nmrefresh'){loadNetMon().then(function(){refreshSheet('netmon');loadDroid().then(function(){refreshSheet('netmon')})});return}
+  if(k==='dmrefresh')return loadDisks().then(function(){refreshSheet('diskman')});
+  if(k==='diskman')return openNative('diskman','Disk Manager');
+  if(k==='amlogic')return openNative('amlogic','Amlogic');
+  if(k==='amloinstall')return amloInstall();
+  if(k==='ttyd')return openNative('ttyd','Terminal (ttyd)');
+  if(k==='mbsave')return mbSave();
   if(k==='reload')return askConfirm('Muat ulang WiFi? Koneksi nirkabel terputus ±5 detik.',function(){
    rpc('network.wireless','reload',{}).then(function(){msg('WiFi dimuat ulang');setTimeout(refresh2,3200)})});
   if(k==='reboot')return askConfirm('Reboot router? Semua perangkat terputus ±1 menit.',function(){
-   msg('Mengirim perintah reboot…');rpc('system','reboot',{}).catch(function(){})})})})}
-
+   msg('Mengirim perintah reboot…');rpc('system','reboot',{}).catch(function(){})});
+  /* handler tombol di dalam kartu native (Buka/Hapus aturan) */
+  bindNative()})})}
 /* ===== riwayat & grafik (localStorage, zero library) ===== */
 var HIST={rows:[],max:400};
 function histLoad(){try{HIST.rows=JSON.parse(localStorage.getItem('owrt_hist')||'[]')}catch(e){HIST.rows=[]}}
+
+
 function histSave(){try{localStorage.setItem('owrt_hist',JSON.stringify(HIST.rows))}catch(e){}}
 histLoad();
 function histSample(){
